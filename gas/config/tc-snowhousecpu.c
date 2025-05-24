@@ -2434,14 +2434,17 @@ snowhousecpu_relax_temp_ctor (snowhousecpu_relax_temp_t *self,
   const bool my_temp_cond_1 =  (
     //fragP->fr_symbol != NULL
     //&&
-    S_IS_DEFINED (fragP->fr_symbol)
-    //&& S_IS_LOCAL (fragP->fr_symbol)
-    //&& S_IS_COMMON (fragP->fr_symbol)
-    //&& S_IS_FORWARD_REF (fragP->fr_symbol)
-    //&& !S_IS_EXTERNAL (fragP->fr_symbol)
-    && !S_IS_WEAK (fragP->fr_symbol)
-    //snowhousecpu_relaxable_symbol (fragP->fr_symbol)
-    && sec == S_GET_SEGMENT (fragP->fr_symbol)
+    my_temp_cond_0
+    || (
+      S_IS_DEFINED (fragP->fr_symbol)
+      //&& S_IS_LOCAL (fragP->fr_symbol)
+      //&& S_IS_COMMON (fragP->fr_symbol)
+      //&& S_IS_FORWARD_REF (fragP->fr_symbol)
+      //&& !S_IS_EXTERNAL (fragP->fr_symbol)
+      && !S_IS_WEAK (fragP->fr_symbol)
+      //snowhousecpu_relaxable_symbol (fragP->fr_symbol)
+      && sec == S_GET_SEGMENT (fragP->fr_symbol)
+    )
   );
   if (my_temp_cond_1)
   {
