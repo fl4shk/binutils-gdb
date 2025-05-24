@@ -1983,12 +1983,12 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
         //simm = snowhousecpu_get_insn_field_ei
         //  (&snowhousecpu_enc_info_g3_s9, insn);
         simm = args->value;
-        fprintf (
-	  stderr,
-	  "debug: begin: insn:%x; simm:%lx\n",
-	  (unsigned) insn,
-	  (uint64_t) simm
-        );
+        //fprintf (
+	//  stderr,
+	//  "debug: begin: insn:%x; simm:%lx\n",
+	//  (unsigned) insn,
+	//  (uint64_t) simm
+        //);
           
         
         if (!args->is_pcrel)
@@ -2005,12 +2005,12 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
           snowhousecpu_set_insn_field_p (
 	    SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, simm
           );
-	  fprintf (
-	    stderr,
-	    "debug: !pcrel: insn:%x; simm:%lx\n",
-	    (unsigned) insn,
-	    (uint64_t) simm
-	  );
+	  //fprintf (
+	  //  stderr,
+	  //  "debug: !pcrel: insn:%x; simm:%lx\n",
+	  //  (unsigned) insn,
+	  //  (uint64_t) simm
+	  //);
         }
         else // if (args->is_pcrel)
         {
@@ -2035,12 +2035,12 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
 	//+ 2
 	+ insn_dist
       );
-      fprintf (
-	stderr,
-	"debug: end: insn:%x; simm:%lx\n",
-	(unsigned) insn,
-	(uint64_t) simm
-      );
+      //fprintf (
+      //  stderr,
+      //  "debug: end: insn:%x; simm:%lx\n",
+      //  (unsigned) insn,
+      //  (uint64_t) simm
+      //);
     }
     if (!snowhousecpu_elf_relax_delete_bytes (args->abfd, args->sec,
       args->irel->r_offset,
@@ -2048,10 +2048,10 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
       insn_dist
     ))
     {
-      fprintf (
-	stderr,
-	"debug: returning false\n"
-      );
+      //fprintf (
+      //  stderr,
+      //  "debug: returning false\n"
+      //);
       return false;
     }
     args->irel->r_info
@@ -2276,11 +2276,11 @@ snowhousecpu_do_relax_prefix (bfd *abfd,
     )
     {
       //printf ("snowhousecpu partial relax: can shrink 0\n");
-      fprintf (
-	stderr,
-	"dbg: relax_can_shrink_value(): %lx\n",
-	value
-      );
+      //fprintf (
+      //  stderr,
+      //  "dbg: relax_can_shrink_value(): %lx\n",
+      //  value
+      //);
 
       snowhousecpu_relax_temp_t args =
       {
