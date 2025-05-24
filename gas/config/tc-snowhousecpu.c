@@ -671,6 +671,12 @@ append_cl_insn (snowhousecpu_cl_insn_t *cl_insn,
       const int
         best_case = have_pre_insn_length (SNOWHOUSECPU_HAVE_PRE_NONE),
         worst_case = have_pre_insn_length (SNOWHOUSECPU_HAVE_PRE_PRE);
+      //fprintf(
+      //  stderr,
+      //  "limitation testificate: %x %x\n",
+      //  (unsigned) (cl_insn->data >> 32),
+      //  (unsigned) (cl_insn->data)
+      //);
 
       dwarf2_emit_insn (0);
       add_gas_relaxed_cl_insn
@@ -1114,6 +1120,12 @@ md_apply_fix (fixS *fixP,
     /* Remember value for tc_gen_reloc */
     /* Note: `valP` is set to an expression using `fixP->fx_offset`
       in `fixup_segment ()` in "../write.c" */
+    //fprintf (stderr,
+    //  "md_apply_fix (): %lx %lx %lx\n",
+    //  (fixP->fx_addnumber),
+    //  (fixP->fx_offset),
+    //  (*valP)
+    //  );
     fixP->fx_addnumber = *valP;
     //fixP->fx_addnumber = fixP->fx_offset;
   }
@@ -1421,6 +1433,11 @@ md_apply_fix (fixS *fixP,
     case BFD_RELOC_SNOWHOUSECPU_CFA:
       if (fixP->fx_addsy && fixP->fx_subsy)
       {
+        //fprintf(
+        //  stderr,
+        //  "addsy and subsy: %x\n",
+        //  (unsigned) (*valP)
+        //);
         fixP->fx_next = xmemdup (fixP, sizeof (*fixP), sizeof (*fixP));
         fixP->fx_next->fx_addsy = fixP->fx_subsy;
         fixP->fx_next->fx_subsy = NULL;
@@ -1554,6 +1571,11 @@ md_apply_fix (fixS *fixP,
         )
       )
       {
+        //fprintf(
+        //  stderr,
+        //  "addsy == NULL: %x\n",
+        //  (unsigned) (*valP)
+        //);
         tmp.pre_offs = 0;
         tmp.insn_offs = tmp.pre_offs
           + snowhousecpu_have_pre_distance
@@ -2114,8 +2136,9 @@ have_relaxable_temp_insn (fragS *fragP)
   cl_insn = snowhousecpu_cl_insn_vec + fragP->fr_subtype;
   //fprintf (
   //  stderr,
-  //  "have_relaxable_temp_insn(): %lx\n",
-  //  cl_insn->data
+  //  "have_relaxable_temp_insn(): %x %x\n",
+  //  (unsigned) (cl_insn->data >> 32),
+  //  (unsigned) (cl_insn->data)
   //);
 
   if (
@@ -2405,30 +2428,52 @@ snowhousecpu_relax_temp_ctor (snowhousecpu_relax_temp_t *self,
     self->length = 4;
   }
 
+  const bool my_temp_cond_0 = (
+    (fragP->fr_symbol == NULL)
+  );
+  const bool my_temp_cond_1 =  (
+    //fragP->fr_symbol != NULL
+    //&&
+    S_IS_DEFINED (fragP->fr_symbol)
+    //&& S_IS_LOCAL (fragP->fr_symbol)
+    //&& S_IS_COMMON (fragP->fr_symbol)
+    //&& S_IS_FORWARD_REF (fragP->fr_symbol)
+    //&& !S_IS_EXTERNAL (fragP->fr_symbol)
+    && !S_IS_WEAK (fragP->fr_symbol)
+    //snowhousecpu_relaxable_symbol (fragP->fr_symbol)
+    && sec == S_GET_SEGMENT (fragP->fr_symbol)
+  );
+  if (my_temp_cond_1)
+  {
+    //fprintf(
+    //  stderr,
+    //  "setting self->value: before: %x\n",
+    //  //self->value
+    //  (unsigned) (fragP->fr_symbol != NULL)
+    //);
+    self->value
+      = (fragP->fr_symbol ? S_GET_VALUE (fragP->fr_symbol) : 0)
+        + fragP->fr_offset;
+    //fprintf(
+    //  stderr,
+    //  "setting self->value: after: %lx\n",
+    //  self->value
+    //);
+  }
+
   if (
     //(have_expr = expr_symbol_where (fragP->fr_symbol, &pfile, &pline))
     //((cl_insn->fr_symbol = fragP->fr_symbol) == NULL)
-    (fragP->fr_symbol == NULL)
+    my_temp_cond_0
     || (
-      //fragP->fr_symbol != NULL
-      //&&
-      S_IS_DEFINED (fragP->fr_symbol)
-      //&& S_IS_LOCAL (fragP->fr_symbol)
-      //&& S_IS_COMMON (fragP->fr_symbol)
-      //&& S_IS_FORWARD_REF (fragP->fr_symbol)
-      //&& !S_IS_EXTERNAL (fragP->fr_symbol)
-      && !S_IS_WEAK (fragP->fr_symbol)
-      //snowhousecpu_relaxable_symbol (fragP->fr_symbol)
-      && sec == S_GET_SEGMENT (fragP->fr_symbol)
+      my_temp_cond_1
       && relax_insn->is_pcrel
       // only relax pc-relative symbol references in GAS since I couldn't
       // get this working otherwise
     )
   )
   {
-    self->value
-      = (fragP->fr_symbol ? S_GET_VALUE (fragP->fr_symbol) : 0)
-        + fragP->fr_offset;
+    //self->value += fragP->fr_offset;
     //fprintf (
     //  stderr,
     //  "snowhousecpu_relax_temp_ctor(): main situation: %lx %lx\n",
@@ -2687,6 +2732,22 @@ snowhousecpu_relax_temp_ctor (snowhousecpu_relax_temp_t *self,
       //}
     }
   }
+  //else
+  {
+    //fprintf (
+    //  stderr,
+    //  "snowhousecpu_relax_temp_ctor(): %lx: %x %x %x %x\n",
+    //  self->value,
+    //
+    //  (unsigned) (S_IS_DEFINED (fragP->fr_symbol)),
+    //  (unsigned) (!S_IS_WEAK (fragP->fr_symbol)),
+    //  //snowhousecpu_relaxable_symbol (fragP->fr_symbol)
+    //  (unsigned) (sec == S_GET_SEGMENT (fragP->fr_symbol)),
+    //  (unsigned) (relax_insn->is_pcrel)
+    //  // only relax pc-relative symbol references in GAS since I couldn't
+    //  // get this working otherwise
+    //);
+  }
   //fprintf (
   //  stderr,
   //  "snowhousecpu_relax_temp_ctor(): end %lx %u\n",
@@ -2761,10 +2822,11 @@ md_convert_frag (bfd *abfd ATTRIBUTE_UNUSED,
   }
   exp.X_add_number = fragP->fr_offset;
 
-  //fprintf (stderr, "md_convert_frag (): %li %i %u\n",
+  //fprintf (stderr, "md_convert_frag (): %li %i %u; %x\n",
   //  fragP->fr_var,
-  //  have_plp_insn_length (cl_insn->have_plp),
-  //  relax_temp.length);
+  //  have_pre_insn_length (cl_insn->have_pre),
+  //  relax_temp.length,
+  //  (unsigned) relax_temp.value);
   if (
     fragP->fr_var != have_pre_insn_length (cl_insn->have_pre)
     //&& cl_insn->opc_info->oparg != SNOWHOUSECPU_OA_RA_RB_SHIFT_U5
@@ -2828,6 +2890,10 @@ md_convert_frag (bfd *abfd ATTRIBUTE_UNUSED,
       {
         // convert `pre` to having no prefix at all
         //whole_insn_length = fragP->fr_var;
+        //fprintf(
+        //  stderr,
+        //  "gas relax HAVE_PRE_NONE: S32_FOR_S16...\n"
+        //);
         const unsigned
           old_insn_dist = snowhousecpu_have_pre_distance
             (SNOWHOUSECPU_HAVE_PRE_PRE, SNOWHOUSECPU_HAVE_PRE_NONE),
@@ -2871,6 +2937,10 @@ md_convert_frag (bfd *abfd ATTRIBUTE_UNUSED,
       )
       {
         whole_insn_length = fragP->fr_var;
+        //fprintf(
+        //  stderr,
+        //  "gas relax HAVE_PRE_PRE: S32_FOR_S16...\n"
+        //);
         fixP = fix_new_exp (fragP, buf - (bfd_byte *) fragP->fr_literal,
           4, &exp, (int) relax_insn->is_pcrel, *reloc);
       }
@@ -3064,7 +3134,7 @@ snowhousecpu_assemble_post_parse_worker (snowhousecpu_parse_data_t *pd,
     cl_insn.reloc = BFD_RELOC_UNUSED;
     //fprintf (
     //  stderr,
-    //  "test: %x\n",
+    //  "!pd->have_imm: %x\n",
     //  (unsigned) cl_insn.data
     //);
   }
@@ -3072,10 +3142,12 @@ snowhousecpu_assemble_post_parse_worker (snowhousecpu_parse_data_t *pd,
   {
     //fprintf (
     //  stderr,
-    //  "test 1: %x\n",
-    //  (unsigned) cl_insn.data
+    //  "pd->have_imm: data:%x; simm:%lx\n",
+    //  (unsigned) cl_insn.data,
+    //  pd->simm
     //);
-    //printf (
+    //fprintf (
+    //  stderr,
     //  "pd->have_imm: %lx\n",
     //  pd->simm
     //);
@@ -3098,6 +3170,13 @@ snowhousecpu_assemble_post_parse_worker (snowhousecpu_parse_data_t *pd,
     //  = !pd->no_relax
     //  ? relax_reloc->lpre.reloc
     //  : relax_reloc->lpre_no_relax.reloc;
+    //fprintf(
+    //  stderr,
+    //  "test: %u %u %u\n",
+    //  (unsigned) cl_insn.have_pre,
+    //  (unsigned) (pd->opc_info->oparg != SNOWHOUSECPU_OA_RA_RB_SHIFT_U5),
+    //  (unsigned) !pd->is_pcrel
+    //);
     cl_insn.reloc = (
       pd->opc_info->oparg != SNOWHOUSECPU_OA_RA_RB_SHIFT_U5
       ? (
@@ -4034,6 +4113,9 @@ tc_gen_reloc (asection *section ATTRIBUTE_UNUSED, fixS *fixP)
     = fixP->fx_addnumber;
 
   reloc->howto = bfd_reloc_type_lookup (stdoutput, fixP->fx_r_type);
+  //fprintf (stderr,
+  //  "tc_gen_reloc: %s\n",
+  //  reloc->howto->name);
   if (reloc->howto == NULL)
   {
     as_bad_where (fixP->fx_file, fixP->fx_line,
@@ -4041,9 +4123,6 @@ tc_gen_reloc (asection *section ATTRIBUTE_UNUSED, fixS *fixP)
       bfd_get_reloc_code_name (fixP->fx_r_type));
     return NULL;
   }
-  //fprintf (stderr,
-  //  "tc_gen_reloc: %s\n",
-  //  reloc->howto->name);
 
   return reloc;
 }

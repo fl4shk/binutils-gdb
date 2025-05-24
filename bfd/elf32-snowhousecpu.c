@@ -641,7 +641,18 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
     return bfd_reloc_outofrange;
   }
 
+  //relocation += addend;
+  //fprintf (
+  //  stderr,
+  //  "bfd test: before: %lx\n",
+  //  relocation
+  //);
   relocation += addend;
+  //fprintf (
+  //  stderr,
+  //  "bfd test: after: %lx\n",
+  //  relocation
+  //);
   //// Get symbol value
   //relocation = symbol->value + symbol->section->output_section->vma
   //  + symbol->section->output_offset + reloc_entry->addend;
@@ -705,6 +716,9 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
       relocation += snowhousecpu_sign_extend (
         val, SNOWHOUSECPU_IMM16_BITSIZE
       );
+      snowhousecpu_set_insn_field_p (
+        SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, relocation
+      );
       bfd_put_32 (input_bfd, insn, contents + address);
     }
     else if (howto->type == R_SNOWHOUSECPU_S32_FOR_S16)
@@ -715,8 +729,23 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
       prefix_insn = bfd_get_32 (input_bfd, contents + address);
       insn = bfd_get_32 (input_bfd, contents + address + insn_dist);
       relocation += snowhousecpu_sign_extend (snowhousecpu_get_s32 (prefix_insn, insn), 32);
+
+      //fprintf(
+      //  stderr,
+      //  "bfd:  pinsn:%x insn:%x\n",
+      //  (unsigned) (prefix_insn),
+      //  (unsigned) (insn)
+      //);
+      snowhousecpu_put_s32_p (&prefix_insn, &insn, relocation);
+
       bfd_put_32 (input_bfd, prefix_insn, contents + address);
       bfd_put_32 (input_bfd, insn, contents + address + insn_dist);
+      //fprintf(
+      //  stderr,
+      //  "bfd:  pinsn:%x insn:%x\n",
+      //  (unsigned) (prefix_insn),
+      //  (unsigned) (insn)
+      //);
       //snowhousecpu_put_g1_s17 (&prefix_insn, &insn, relocation);
       //bfd_put_16 (input_bfd, prefix_insn, contents + address);
       //bfd_put_16 (input_bfd, insn, contents + address + insn_dist);
@@ -733,13 +762,19 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
       relocation += snowhousecpu_zero_extend (
         val, SNOWHOUSECPU_SHIFT_IMM5_BITSIZE
       );
-      fprintf (
-	stderr,
-	"SHIFT_U5 debug: %lx %lu %lu\n",
-	insn,
-	val,
-	relocation
+      //snowhousecpu_set_insn_field_p (
+      //  SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, relocation
+      //);
+      snowhousecpu_put_shift_u5_p (
+        &insn, relocation
       );
+      //fprintf (
+      //  stderr,
+      //  "SHIFT_U5 debug: %lx %lu %lu\n",
+      //  insn,
+      //  val,
+      //  relocation
+      //);
 
       bfd_put_32 (input_bfd, insn, contents + address);
     }
