@@ -1582,8 +1582,9 @@ md_apply_fix (fixS *fixP,
             (SNOWHOUSECPU_HAVE_PRE_PRE, SNOWHOUSECPU_HAVE_PRE_NONE);
         tmp.prefix_insn = (
           //bfd_getb64 (tmp.buf + tmp.lpre_offs)
-          (bfd_getl32 (tmp.buf + tmp.pre_offs) << 32)
-          | bfd_getl32 (tmp.buf + tmp.pre_offs + 4)
+          //(bfd_getl32 (tmp.buf + tmp.pre_offs) << 32)
+          //| 
+          bfd_getl32 (tmp.buf + tmp.pre_offs /*+ 4*/)
         );
         tmp.insn = bfd_getl32 (tmp.buf + tmp.insn_offs);
         snowhousecpu_put_s32_p (&tmp.prefix_insn, &tmp.insn,
@@ -1625,13 +1626,14 @@ md_apply_fix (fixS *fixP,
         //    (tmp.prefix_insn, tmp.insn);
         //}
         //bfd_putb64 (tmp.prefix_insn, tmp.buf + tmp.lpre_offs);
-        bfd_putl32 (
-          (tmp.prefix_insn >> 32) & 0xffffffffull,
-          tmp.buf + tmp.pre_offs
-        );
+
+        //bfd_putl32 (
+        //  (tmp.prefix_insn >> 32) & 0xffffffffull,
+        //  tmp.buf + tmp.pre_offs
+        //);
         bfd_putl32 (
           tmp.prefix_insn & 0xffffffffull,
-          tmp.buf + tmp.pre_offs + 4
+          tmp.buf + tmp.pre_offs //+ 4
         );
         bfd_putl32 (tmp.insn, tmp.buf + tmp.insn_offs);
         //printf ("testificate\n");
