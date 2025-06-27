@@ -23,6 +23,7 @@
 #define _SNOWHOUSECPU_H_
 
 #include "bfd.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -847,6 +848,13 @@ snowhousecpu_get_s32 (snowhousecpu_temp_t prefix_insn,
     )
   );
   ret = snowhousecpu_sign_extend (temp, 32);
+  //fprintf(
+  //  stderr,
+  //  "snowhousecpu_get_s32() : p:%lx i:%lx ret:%lx\n",
+  //  prefix_insn,
+  //  insn,
+  //  ret
+  //);
   return ret;
 }
 static inline void
@@ -854,6 +862,13 @@ snowhousecpu_put_s32_p (snowhousecpu_temp_t *prefix_insn,
 		      snowhousecpu_temp_t *insn,
 		      snowhousecpu_temp_t combined)
 {
+  //fprintf(
+  //  stderr,
+  //  "snowhousecpu_put_s32_p() BEFORE: p:%lx i:%lx c:%lx\n",
+  //  *prefix_insn,
+  //  *insn,
+  //  combined
+  //);
   snowhousecpu_set_insn_field_p (
     SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, prefix_insn,
     combined >> SNOWHOUSECPU_IMM16_BITSIZE
@@ -862,6 +877,13 @@ snowhousecpu_put_s32_p (snowhousecpu_temp_t *prefix_insn,
     SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, insn,
     combined
   );
+  //fprintf(
+  //  stderr,
+  //  "snowhousecpu_put_s32_p() AFTER: p:%lx i:%lx c:%lx\n",
+  //  *prefix_insn,
+  //  *insn,
+  //  combined
+  //);
 }
 static inline snowhousecpu_temp_t 
 snowhousecpu_get_shift_u5 (snowhousecpu_temp_t insn)

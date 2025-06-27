@@ -1029,7 +1029,7 @@ md_pcrel_from (fixS *fixP ATTRIBUTE_UNUSED)
   //return fixP->fx_where + fixP->fx_frag->fr_address;
   //valueT addr = fixP->fx_where + fixP->fx_frag->fr_address
     //+ fixP->fx_frag->fr_var
-    ;
+    //;
 
   /* Offset is from the end of the instruction. */
   //switch (fixP->fx_r_type)
