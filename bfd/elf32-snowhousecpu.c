@@ -963,6 +963,11 @@ snowhousecpu_elf_do_non_add_sub_imm_reloc (bfd *input_bfd,
       }
       else
       {
+	//fprintf (
+	//  stderr,
+	//  "simm24: relocation: %lx\n",
+	//  relocation
+	//);
 	snowhousecpu_set_insn_field_p (
 	  SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, &insn, relocation >> 2
 	);
@@ -989,6 +994,15 @@ snowhousecpu_elf_do_non_add_sub_imm_reloc (bfd *input_bfd,
       //  ;
       relocation -= temp_length;
       //snowhousecpu_put_g3_s21 (&prefix_insn, &insn, relocation);
+      if (
+	howto->type == R_SNOWHOUSECPU_S32_FOR_S24_PCREL
+      ) {
+	//fprintf (
+	//  stderr,
+	//  "s32 for simm24: relocation: %lx\n",
+	//  relocation
+	//);
+      }
       snowhousecpu_put_s32_p (
 	&prefix_insn, &insn, relocation,
 	snowhousecpu_howto_to_imm_kind (howto)

@@ -183,6 +183,14 @@ snowhousecpu_dasm_info_do_disassemble_worker (snowhousecpu_dasm_info_t *self)
 	  self->have_non_pre_imm = true;
 	  break;
       }
+      //switch (snowhousecpu_get_imm_kind(self->opc_info))
+      //{
+      //  case SNOWHOUSECPU_IMM_KIND_PCREL_S16:
+      //  case SNOWHOUSECPU_IMM_KIND_PCREL_S24:
+      //    break;
+      //  default:
+      //    break;
+      //}
       //switch (self->opc_info->oparg)
       //{
       //  case SNOWHOUSECPU_OA_RA_S16:
