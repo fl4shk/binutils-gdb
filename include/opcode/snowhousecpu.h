@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <assert.h>
 
 #define SNOWHOUSECPU_N_ONES(n) \
   ((((1ull << ((n) - 1ull)) - 1ull) << 1ull) | 1ull)
@@ -178,6 +179,14 @@ snowhousecpu_set_insn_field_p (snowhousecpu_temp_t mask,
   (SNOWHOUSECPU_ENC_RSMASK (IMM16))
 #define SNOWHOUSECPU_IMM16_MASK \
   (SNOWHOUSECPU_ENC_MASK (IMM16))
+
+/* encoding of simm24 */
+#define SNOWHOUSECPU_SIMM24_BITSIZE (24ull)
+#define SNOWHOUSECPU_SIMM24_BITPOS (0ull)
+#define SNOWHOUSECPU_SIMM24_RSMASK \
+  (SNOWHOUSECPU_ENC_RSMASK (SIMM24))
+#define SNOWHOUSECPU_SIMM24_MASK \
+  (SNOWHOUSECPU_ENC_MASK (SIMM24))
 
 /* encoding of sub-operation field */
 #define SNOWHOUSECPU_SUBOP_IMM16_BITSIZE (4ull)
@@ -370,25 +379,27 @@ typedef enum snowhousecpu_oparg_t
 {
   SNOWHOUSECPU_OA_BAD,
   SNOWHOUSECPU_OA_NONE,
-  SNOWHOUSECPU_OA_PRE,
+  //SNOWHOUSECPU_OA_PRE,
   SNOWHOUSECPU_OA_RB,
   SNOWHOUSECPU_OA_RA_S16,
   SNOWHOUSECPU_OA_RA_RB,
   SNOWHOUSECPU_OA_RA_RB_RC,
   SNOWHOUSECPU_OA_RA_RB_S16,
-  //SNOWHOUSECPU_OA_RA_RB_U16,
+  SNOWHOUSECPU_OA_RA_RB_U16,
   SNOWHOUSECPU_OA_RA_RB_SHIFT_U5,
-  SNOWHOUSECPU_OA_RA_PCREL_S16,
+  //SNOWHOUSECPU_OA_RA_PCREL_S16,
+  SNOWHOUSECPU_OA_RA_PCREL_S24,
+  SNOWHOUSECPU_OA_PCREL_S24_IMPLICIT_LR,
   SNOWHOUSECPU_OA_RA_RB_PCREL_S16,
   SNOWHOUSECPU_OA_RB_RA_PCREL_S16,
-  SNOWHOUSECPU_OA_PCREL_S16_IMPLICIT_LR,
+  //SNOWHOUSECPU_OA_PCREL_S16_IMPLICIT_LR,
   SNOWHOUSECPU_OA_RA_PC_PCREL_S16,
   //SNOWHOUSECPU_OA_RA_RB_S16_LDST,
   SNOWHOUSECPU_OA_IDS_RB,
   SNOWHOUSECPU_OA_RA_IRA,
   SNOWHOUSECPU_OA_IE_RB,
   SNOWHOUSECPU_OA_IRA,
-  SNOWHOUSECPU_OA_S16,
+  SNOWHOUSECPU_OA_PRE_S16,
 } snowhousecpu_oparg_t;
 
 typedef enum snowhousecpu_opc_subop_kind_t {
@@ -426,111 +437,121 @@ typedef struct snowhousecpu_opc_info_t {
   {"sltu", SNOWHOUSECPU_OA_RA_RB_RC, 2ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 0ull}}
 #define SNOWHOUSECPU_OI_INST_SLTS_RA_RB_RC \
   {"slts", SNOWHOUSECPU_OA_RA_RB_RC, 2ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 1ull}}
+
+#define SNOWHOUSECPU_OI_INST_SLTU_RA_RB_IMM16 \
+  {"sltu", SNOWHOUSECPU_OA_RA_RB_U16, 3ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
+#define SNOWHOUSECPU_OI_INST_SLTS_RA_RB_SIMM16 \
+  {"slts", SNOWHOUSECPU_OA_RA_RB_S16, 3ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 1ull}}
   //--------
 #define SNOWHOUSECPU_OI_INST_XOR_RA_RB_RC \
-  {"xor", SNOWHOUSECPU_OA_RA_RB_RC, 3ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_NZ, 1ull}}
-#define SNOWHOUSECPU_OI_INST_XOR_RA_RB_SIMM16 \
-  {"xor", SNOWHOUSECPU_OA_RA_RB_S16, 3ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_NZ, 0ull}}
+  {"xor", SNOWHOUSECPU_OA_RA_RB_RC, 4ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_NZ, 1ull}}
+#define SNOWHOUSECPU_OI_INST_XOR_RA_RB_IMM16 \
+  {"xor", SNOWHOUSECPU_OA_RA_RB_U16, 4ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_NZ, 0ull}}
 
-#define SNOWHOUSECPU_OI_INST_OR_RA_RB_SIMM16 \
-  {"or", SNOWHOUSECPU_OA_RA_RB_S16, 4ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_NZ, 0ull}}
+#define SNOWHOUSECPU_OI_INST_OR_RA_RB_IMM16 \
+  {"or", SNOWHOUSECPU_OA_RA_RB_U16, 5ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_NZ, 0ull}}
 #define SNOWHOUSECPU_OI_INST_OR_RA_RB_RC \
-  {"or", SNOWHOUSECPU_OA_RA_RB_RC, 4ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_NZ, 1ull}}
+  {"or", SNOWHOUSECPU_OA_RA_RB_RC, 5ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_NZ, 1ull}}
 
 // `AND_RA_RB_SIMM16` is moved down here to help with synthesis/routing of
 // executing/decoding instructions
 #define SNOWHOUSECPU_OI_INST_AND_RA_RB_SIMM16 \
-  {"and", SNOWHOUSECPU_OA_RA_RB_S16, 5ull, {0ull, SNOWHOUSECPU_SOK_NONE, 0ull}}
+  {"and", SNOWHOUSECPU_OA_RA_RB_S16, 6ull, {0ull, SNOWHOUSECPU_SOK_NONE, 0ull}}
 
 #define SNOWHOUSECPU_OI_INST_LSL_RA_RB_RC \
-  {"lsl", SNOWHOUSECPU_OA_RA_RB_RC, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 0ull}}
+  {"lsl", SNOWHOUSECPU_OA_RA_RB_RC, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 0ull}}
 #define SNOWHOUSECPU_OI_INST_LSL_RA_RB_IMM5 \
-  {"lsl", SNOWHOUSECPU_OA_RA_RB_SHIFT_U5, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 1ull}}
+  {"lsl", SNOWHOUSECPU_OA_RA_RB_SHIFT_U5, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 1ull}}
 #define SNOWHOUSECPU_OI_INST_LSR_RA_RB_RC \
-  {"lsr", SNOWHOUSECPU_OA_RA_RB_RC, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 2ull}}
+  {"lsr", SNOWHOUSECPU_OA_RA_RB_RC, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 2ull}}
 #define SNOWHOUSECPU_OI_INST_LSR_RA_RB_IMM5 \
-  {"lsr", SNOWHOUSECPU_OA_RA_RB_SHIFT_U5, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 3ull}}
+  {"lsr", SNOWHOUSECPU_OA_RA_RB_SHIFT_U5, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 3ull}}
 #define SNOWHOUSECPU_OI_INST_ASR_RA_RB_RC \
-  {"asr", SNOWHOUSECPU_OA_RA_RB_RC, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 4ull}}
+  {"asr", SNOWHOUSECPU_OA_RA_RB_RC, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 4ull}}
 #define SNOWHOUSECPU_OI_INST_ASR_RA_RB_IMM5 \
-  {"asr", SNOWHOUSECPU_OA_RA_RB_SHIFT_U5, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 5ull}}
+  {"asr", SNOWHOUSECPU_OA_RA_RB_SHIFT_U5, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 5ull}}
 #define SNOWHOUSECPU_OI_INST_AND_RA_RB_RC \
-  {"and", SNOWHOUSECPU_OA_RA_RB_RC, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 6ull}}
+  {"and", SNOWHOUSECPU_OA_RA_RB_RC, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 6ull}}
 #define SNOWHOUSECPU_OI_INST_CPY_IDS_RB \
-  {"cpy", SNOWHOUSECPU_OA_IDS_RB, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 7ull}}
+  {"cpy", SNOWHOUSECPU_OA_IDS_RB, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 7ull}}
 #define SNOWHOUSECPU_OI_INST_CPY_RA_IRA \
-  {"cpy", SNOWHOUSECPU_OA_RA_IRA, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 8ull}}
+  {"cpy", SNOWHOUSECPU_OA_RA_IRA, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 8ull}}
 #define SNOWHOUSECPU_OI_INST_CPY_IE_RB \
-  {"cpy", SNOWHOUSECPU_OA_IE_RB, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 9ull}}
+  {"cpy", SNOWHOUSECPU_OA_IE_RB, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 9ull}}
 #define SNOWHOUSECPU_OI_INST_RET_IRA \
-  {"ret", SNOWHOUSECPU_OA_IRA, 6ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 10ull}}
+  {"ret", SNOWHOUSECPU_OA_IRA, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 10ull}}
 
 #define SNOWHOUSECPU_OI_INST_MUL_RA_RB_RC \
-  {"mul", SNOWHOUSECPU_OA_RA_RB_RC, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 0ull}}
+  {"mul", SNOWHOUSECPU_OA_RA_RB_RC, 8ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 0ull}}
 #define SNOWHOUSECPU_OI_INST_UDIV_RA_RB_RC \
-  {"udiv", SNOWHOUSECPU_OA_RA_RB_RC, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 1ull}}
+  {"udiv", SNOWHOUSECPU_OA_RA_RB_RC, 8ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 1ull}}
 #define SNOWHOUSECPU_OI_INST_SDIV_RA_RB_RC \
-  {"sdiv", SNOWHOUSECPU_OA_RA_RB_RC, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 2ull}}
+  {"sdiv", SNOWHOUSECPU_OA_RA_RB_RC, 8ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 2ull}}
 #define SNOWHOUSECPU_OI_INST_UMOD_RA_RB_RC \
-  {"umod", SNOWHOUSECPU_OA_RA_RB_RC, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 3ull}}
+  {"umod", SNOWHOUSECPU_OA_RA_RB_RC, 8ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 3ull}}
 #define SNOWHOUSECPU_OI_INST_SMOD_RA_RB_RC \
-  {"smod", SNOWHOUSECPU_OA_RA_RB_RC, 7ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 4ull}}
+  {"smod", SNOWHOUSECPU_OA_RA_RB_RC, 8ull, {0ull, SNOWHOUSECPU_SOK_IMM16_LO, 4ull}}
 
 #define SNOWHOUSECPU_OI_INST_LDR_RA_RB_SIMM16 \
-  {"ldr", SNOWHOUSECPU_OA_RA_RB_S16, 8ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
+  {"ldr", SNOWHOUSECPU_OA_RA_RB_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
 #define SNOWHOUSECPU_OI_INST_STR_RA_RB_SIMM16 \
-  {"str", SNOWHOUSECPU_OA_RA_RB_S16, 8ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 1ull}}
+  {"str", SNOWHOUSECPU_OA_RA_RB_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 1ull}}
 #define SNOWHOUSECPU_OI_INST_LDUH_RA_RB_SIMM16 \
-  {"lduh", SNOWHOUSECPU_OA_RA_RB_S16, 8ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 2ull}}
+  {"lduh", SNOWHOUSECPU_OA_RA_RB_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 2ull}}
 #define SNOWHOUSECPU_OI_INST_LDSH_RA_RB_SIMM16 \
-  {"ldsh", SNOWHOUSECPU_OA_RA_RB_S16, 8ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 3ull}}
+  {"ldsh", SNOWHOUSECPU_OA_RA_RB_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 3ull}}
 #define SNOWHOUSECPU_OI_INST_LDUB_RA_RB_SIMM16 \
-  {"ldub", SNOWHOUSECPU_OA_RA_RB_S16, 8ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 4ull}}
+  {"ldub", SNOWHOUSECPU_OA_RA_RB_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 4ull}}
 #define SNOWHOUSECPU_OI_INST_LDSB_RA_RB_SIMM16 \
-  {"ldsb", SNOWHOUSECPU_OA_RA_RB_S16, 8ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 5ull}}
+  {"ldsb", SNOWHOUSECPU_OA_RA_RB_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 5ull}}
 #define SNOWHOUSECPU_OI_INST_STH_RA_RB_SIMM16 \
-  {"sth", SNOWHOUSECPU_OA_RA_RB_S16, 8ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 6ull}}
+  {"sth", SNOWHOUSECPU_OA_RA_RB_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 6ull}}
 #define SNOWHOUSECPU_OI_INST_STB_RA_RB_SIMM16 \
-  {"stb", SNOWHOUSECPU_OA_RA_RB_S16, 8ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 7ull}}
+  {"stb", SNOWHOUSECPU_OA_RA_RB_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 7ull}}
   //--------
 #define SNOWHOUSECPU_OI_INST_BEQ_RA_RB_SIMM16 \
-  {"beq", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 9ull, {2ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
-#define SNOWHOUSECPU_OI_INST_BL_RA_SIMM16 \
-  {"bl", SNOWHOUSECPU_OA_RA_PCREL_S16, 9ull, {1ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
-#define SNOWHOUSECPU_OI_INST_BL_SIMM16 \
-  {"bl", SNOWHOUSECPU_OA_PCREL_S16_IMPLICIT_LR, 9ull, {1ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
+  {"beq", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 10ull, {2ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
+//#define SNOWHOUSECPU_OI_INST_BL_RA_SIMM16
+//  {"bl", SNOWHOUSECPU_OA_RA_PCREL_S16, 9ull, {1ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
+//#define SNOWHOUSECPU_OI_INST_BL_SIMM16
+//  {"bl", SNOWHOUSECPU_OA_PCREL_S16_IMPLICIT_LR, 10ull, {1ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
 #define SNOWHOUSECPU_OI_INST_BNE_RA_RB_SIMM16 \
-  {"bne", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 9ull, {2ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 1ull}}
+  {"bne", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 10ull, {2ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 1ull}}
 #define SNOWHOUSECPU_OI_INST_ADD_RA_PC_SIMM16 \
-  {"add", SNOWHOUSECPU_OA_RA_PC_PCREL_S16, 9ull, {1ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 1ull}}
+  {"add", SNOWHOUSECPU_OA_RA_PC_PCREL_S16, 10ull, {1ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 1ull}}
 
 #define SNOWHOUSECPU_OI_INST_BLTU_RA_RB_SIMM16 \
-  {"bltu", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 2ull}}
+  {"bltu", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 10ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 2ull}}
 #define SNOWHOUSECPU_OI_INST_BGTU_RA_RB_SIMM16 \
-  {"bgtu", SNOWHOUSECPU_OA_RB_RA_PCREL_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 2ull}}
+  {"bgtu", SNOWHOUSECPU_OA_RB_RA_PCREL_S16, 10ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 2ull}}
 
 #define SNOWHOUSECPU_OI_INST_BGEU_RA_RB_SIMM16 \
-  {"bgeu", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 3ull}}
+  {"bgeu", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 10ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 3ull}}
 #define SNOWHOUSECPU_OI_INST_BLEU_RA_RB_SIMM16 \
-  {"bleu", SNOWHOUSECPU_OA_RB_RA_PCREL_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 3ull}}
+  {"bleu", SNOWHOUSECPU_OA_RB_RA_PCREL_S16, 10ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 3ull}}
 
 #define SNOWHOUSECPU_OI_INST_BLTS_RA_RB_SIMM16 \
-  {"blts", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 4ull}}
+  {"blts", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 10ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 4ull}}
 #define SNOWHOUSECPU_OI_INST_BGTS_RA_RB_SIMM16 \
-  {"bgts", SNOWHOUSECPU_OA_RB_RA_PCREL_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 4ull}}
+  {"bgts", SNOWHOUSECPU_OA_RB_RA_PCREL_S16, 10ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 4ull}}
 
 #define SNOWHOUSECPU_OI_INST_BGES_RA_RB_SIMM16 \
-  {"bges", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 5ull}}
+  {"bges", SNOWHOUSECPU_OA_RA_RB_PCREL_S16, 10ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 5ull}}
 #define SNOWHOUSECPU_OI_INST_BLES_RA_RB_SIMM16 \
-  {"bles", SNOWHOUSECPU_OA_RB_RA_PCREL_S16, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 5ull}}
+  {"bles", SNOWHOUSECPU_OA_RB_RA_PCREL_S16, 10ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 5ull}}
 
 #define SNOWHOUSECPU_OI_INST_JL_RA_RB \
-  {"jl", SNOWHOUSECPU_OA_RA_RB, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 6ull}}
+  {"jl", SNOWHOUSECPU_OA_RA_RB, 10ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 6ull}}
 #define SNOWHOUSECPU_OI_INST_JMP_RB \
-  {"jmp", SNOWHOUSECPU_OA_RB, 9ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 6ull}}
+  {"jmp", SNOWHOUSECPU_OA_RB, 10ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 6ull}}
+
+#define SNOWHOUSECPU_OI_INST_BL_RA_SIMM24 \
+  {"bl", SNOWHOUSECPU_OA_RA_PCREL_S24, 11ul, {0ull, SNOWHOUSECPU_SOK_NONE, 0ull}}
+#define SNOWHOUSECPU_OI_INST_BL_SIMM24 \
+  {"bl", SNOWHOUSECPU_OA_PCREL_S24_IMPLICIT_LR, 11ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
 
 #define SNOWHOUSECPU_OI_INST_PRE_SIMM16 \
-  {"pre", SNOWHOUSECPU_OA_S16, 10ull, {0ull, SNOWHOUSECPU_SOK_NONE, 0ull}}
+  {"pre", SNOWHOUSECPU_OA_PRE_S16, 12ull, {0ull, SNOWHOUSECPU_SOK_NONE, 0ull}}
 
 
 
@@ -566,9 +587,33 @@ typedef struct snowhousecpu_opc_info_t {
 //  const snowhousecpu_opc_info_t *main;
 //} snowhousecpu_opc_info_t;
 
+typedef enum snowhousecpu_imm_kind_t {
+  SNOWHOUSECPU_IMM_KIND_NONE,
+  SNOWHOUSECPU_IMM_KIND_PRE_S16,
+  SNOWHOUSECPU_IMM_KIND_S16,
+  SNOWHOUSECPU_IMM_KIND_U16,
+  SNOWHOUSECPU_IMM_KIND_SHIFT_U5,
+  SNOWHOUSECPU_IMM_KIND_PCREL_S16,
+  SNOWHOUSECPU_IMM_KIND_PCREL_S24,
+} snowhousecpu_imm_kind_t;
+static inline bool snowhousecpu_imm_kind_is_non_pre_imm(
+  snowhousecpu_imm_kind_t imm_kind
+)
+{
+  switch (imm_kind)
+  {
+    case SNOWHOUSECPU_IMM_KIND_NONE:
+    case SNOWHOUSECPU_IMM_KIND_PRE_S16:
+      return false;
+    default:
+      return true;
+  }
+}
+
 struct snowhousecpu_dasm_info_t;
 typedef int (*snowhousecpu_dasm_info_rd32_func)
   (struct snowhousecpu_dasm_info_t * /* self */);
+
 typedef struct snowhousecpu_dasm_info_t
 {
   int length;
@@ -586,7 +631,9 @@ typedef struct snowhousecpu_dasm_info_t
   const snowhousecpu_opc_info_t *inp_opc_info;
   //const snowhousecpu_opc_info_t *opc_main;
   snowhousecpu_temp_t iword;
+  snowhousecpu_temp_t uimm;
   snowhousecpu_temp_t simm;
+  snowhousecpu_temp_t simm24;
   snowhousecpu_temp_t op;
   snowhousecpu_temp_t subop_imm16;
   snowhousecpu_temp_t subop_rc_idx;
@@ -605,6 +652,42 @@ typedef struct snowhousecpu_dasm_info_t
   snowhousecpu_dasm_info_rd32_func rd32_func;
 } snowhousecpu_dasm_info_t;
 
+static inline snowhousecpu_imm_kind_t snowhousecpu_get_imm_kind(
+  const snowhousecpu_opc_info_t *opc_info
+)
+{
+  switch (opc_info->oparg)
+  {
+    case SNOWHOUSECPU_OA_RA_S16:
+    case SNOWHOUSECPU_OA_RA_RB_S16:
+      return SNOWHOUSECPU_IMM_KIND_S16;
+    case SNOWHOUSECPU_OA_RA_RB_U16:
+      return SNOWHOUSECPU_IMM_KIND_U16;
+    case SNOWHOUSECPU_OA_RA_RB_SHIFT_U5:
+      return SNOWHOUSECPU_IMM_KIND_SHIFT_U5;
+    case SNOWHOUSECPU_OA_RA_PCREL_S24:
+    case SNOWHOUSECPU_OA_PCREL_S24_IMPLICIT_LR:
+      return SNOWHOUSECPU_IMM_KIND_PCREL_S24;
+    case SNOWHOUSECPU_OA_RA_RB_PCREL_S16:
+    case SNOWHOUSECPU_OA_RB_RA_PCREL_S16:
+    case SNOWHOUSECPU_OA_RA_PC_PCREL_S16:
+      return SNOWHOUSECPU_IMM_KIND_PCREL_S16;
+    case SNOWHOUSECPU_OA_PRE_S16:
+      return SNOWHOUSECPU_IMM_KIND_PRE_S16;
+    case SNOWHOUSECPU_OA_BAD:
+    case SNOWHOUSECPU_OA_NONE:
+    case SNOWHOUSECPU_OA_RB:
+    case SNOWHOUSECPU_OA_RA_RB:
+    case SNOWHOUSECPU_OA_RA_RB_RC:
+    case SNOWHOUSECPU_OA_IDS_RB:
+    case SNOWHOUSECPU_OA_RA_IRA:
+    case SNOWHOUSECPU_OA_IE_RB:
+    case SNOWHOUSECPU_OA_IRA:
+    //default:
+      return SNOWHOUSECPU_IMM_KIND_NONE;
+  }
+  return SNOWHOUSECPU_IMM_KIND_NONE;
+}
 
 typedef struct snowhousecpu_opci_vec_t
 {
@@ -694,11 +777,13 @@ extern void snowhousecpu_opci_v2d_delete_data (snowhousecpu_opci_v2d_t *self);
 //} snowhousecpu_enc_instr_t;
 /* -------- */
 static inline snowhousecpu_temp_t
-snowhousecpu_enc_temp_insn (snowhousecpu_temp_t op,
-				snowhousecpu_temp_t ra_idx,
-				snowhousecpu_temp_t rb_idx,
-				snowhousecpu_temp_t rc_idx,
-				snowhousecpu_temp_t imm16)
+snowhousecpu_enc_temp_insn (
+  snowhousecpu_temp_t op,
+  snowhousecpu_temp_t ra_idx,
+  snowhousecpu_temp_t rb_idx,
+  snowhousecpu_temp_t rc_idx,
+  snowhousecpu_temp_t imm16
+)
 {
   snowhousecpu_temp_t insn = 0x0;
   snowhousecpu_set_insn_field_p (SNOWHOUSECPU_OP_MASK, SNOWHOUSECPU_OP_BITPOS, &insn, op);
@@ -706,6 +791,29 @@ snowhousecpu_enc_temp_insn (snowhousecpu_temp_t op,
   snowhousecpu_set_insn_field_p (SNOWHOUSECPU_RB_IDX_MASK, SNOWHOUSECPU_RB_IDX_BITPOS, &insn, rb_idx);
   snowhousecpu_set_insn_field_p (SNOWHOUSECPU_RC_IDX_MASK, SNOWHOUSECPU_RC_IDX_BITPOS, &insn, rc_idx);
   snowhousecpu_set_insn_field_p (SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, imm16);
+  return insn;
+}
+static inline snowhousecpu_temp_t
+snowhousecpu_enc_temp_insn_s18_pcrel (
+  snowhousecpu_temp_t op,
+  snowhousecpu_temp_t ra_idx,
+  snowhousecpu_temp_t rb_idx,
+  snowhousecpu_temp_t rc_idx,
+  snowhousecpu_temp_t simm18)
+{
+  return snowhousecpu_enc_temp_insn (op, ra_idx, rb_idx, rc_idx, simm18 >> 2);
+}
+static inline snowhousecpu_temp_t
+snowhousecpu_enc_temp_insn_s26_pcrel (snowhousecpu_temp_t op,
+  snowhousecpu_temp_t ra_idx,
+  snowhousecpu_temp_t simm26)
+{
+  snowhousecpu_temp_t insn = 0;
+  snowhousecpu_set_insn_field_p (SNOWHOUSECPU_OP_MASK, SNOWHOUSECPU_OP_BITPOS, &insn, op);
+  snowhousecpu_set_insn_field_p (SNOWHOUSECPU_RA_IDX_MASK, SNOWHOUSECPU_RA_IDX_BITPOS, &insn, ra_idx);
+  snowhousecpu_set_insn_field_p (
+    SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, &insn, simm26 >> 2
+  );
   return insn;
 }
 //typedef struct snowhousecpu_dasm_temp_instr_t {
@@ -833,21 +941,100 @@ snowhousecpu_get_ext_imm (snowhousecpu_temp_t prefix_mask,
 //    SNOWHOUSECPU_G7_ICRELOAD_S5_BITPOS,
 //    insn);
 //}
+typedef struct snowhousecpu_temp_s32_info_t {
+  bool
+    is_signed: 1,
+    is_s24: 1,
+    is_pcrel: 1;
+} snowhousecpu_temp_s32_info_t;
+static inline void snowhousecpu_temp_s32_info_ctor (
+   snowhousecpu_temp_s32_info_t *self,
+   //const snowhousecpu_opc_info_t *opc_info
+   snowhousecpu_imm_kind_t imm_kind
+)
+{
+  memset (self, 0, sizeof (*self));
+
+  switch (
+    //snowhousecpu_get_imm_kind (opc_info)
+    imm_kind
+  )
+  {
+    case SNOWHOUSECPU_IMM_KIND_NONE:
+    case SNOWHOUSECPU_IMM_KIND_PRE_S16:
+      break;
+    case SNOWHOUSECPU_IMM_KIND_SHIFT_U5:
+      assert (false);
+      break;
+    case SNOWHOUSECPU_IMM_KIND_S16:
+      self->is_signed = true;
+      break;
+    case SNOWHOUSECPU_IMM_KIND_U16:
+      break;
+    case SNOWHOUSECPU_IMM_KIND_PCREL_S16:
+      self->is_signed = true;
+      self->is_pcrel = true;
+      break;
+    case SNOWHOUSECPU_IMM_KIND_PCREL_S24:
+      self->is_signed = true;
+      self->is_pcrel = true;
+      self->is_s24 = true;
+      break;
+  }
+}
 
 static inline snowhousecpu_temp_t
-snowhousecpu_get_s32 (snowhousecpu_temp_t prefix_insn,
-		      snowhousecpu_temp_t insn)
+snowhousecpu_get_s32 (
+  snowhousecpu_temp_t prefix_insn,
+  snowhousecpu_temp_t insn,
+  //bool is_signed,
+  //bool is_s24,
+  //bool is_pcrel
+  //const snowhousecpu_temp_s32_info_t *temp_s32_info
+  //const snowhousecpu_opc_info_t *opc_info
+  snowhousecpu_imm_kind_t imm_kind
+)
 {
   snowhousecpu_temp_t ret = 0;
-  const snowhousecpu_temp_t temp = (
+  snowhousecpu_temp_s32_info_t temp_s32_info;
+  snowhousecpu_temp_s32_info_ctor (&temp_s32_info, imm_kind);
+
+  const snowhousecpu_temp_t temp_imm32 = (
     (
-      snowhousecpu_get_insn_field (SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, prefix_insn)
-      << SNOWHOUSECPU_IMM16_BITSIZE
+      snowhousecpu_get_insn_field (
+        SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, prefix_insn
+      ) << (
+        SNOWHOUSECPU_IMM16_BITSIZE
+      )
     ) | (
       snowhousecpu_get_insn_field (SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, insn)
     )
   );
-  ret = snowhousecpu_sign_extend (temp, 32);
+
+  if (!temp_s32_info.is_signed)
+  {
+    ret = snowhousecpu_zero_extend (temp_imm32, 32);
+  }
+  else // if (temp_s32_info->is_signed)
+  {
+    ret = snowhousecpu_sign_extend (temp_imm32, 32);
+    if (!temp_s32_info.is_pcrel)
+    {
+      //ret = snowhousecpu_sign_extend (temp_imm32, 32);
+    }
+    else // if (temp_s32_info->is_pcrel)
+    {
+      //ret = temp_imm32 & (~0x3);
+      //ret &= (~0x3ull);
+      ret <<= 2ull;
+      //if (!temp_s32_info.is_s24)
+      //{
+      //}
+      //else // if (temp_s32_info->is_s24)
+      //{
+      //}
+    }
+  }
   //fprintf(
   //  stderr,
   //  "snowhousecpu_get_s32() : p:%lx i:%lx ret:%lx\n",
@@ -858,9 +1045,18 @@ snowhousecpu_get_s32 (snowhousecpu_temp_t prefix_insn,
   return ret;
 }
 static inline void
-snowhousecpu_put_s32_p (snowhousecpu_temp_t *prefix_insn,
-		      snowhousecpu_temp_t *insn,
-		      snowhousecpu_temp_t combined)
+snowhousecpu_put_s32_p (
+  snowhousecpu_temp_t *prefix_insn,
+  snowhousecpu_temp_t *insn,
+  snowhousecpu_temp_t combined,
+  //bool is_s24_pcrel
+  //bool is_signed,
+  //bool is_s24,
+  //bool is_pcrel
+  //const snowhousecpu_temp_s32_info_t *temp_s32_info
+  //const snowhousecpu_opc_info_t *opc_info
+  snowhousecpu_imm_kind_t imm_kind
+)
 {
   //fprintf(
   //  stderr,
@@ -869,14 +1065,95 @@ snowhousecpu_put_s32_p (snowhousecpu_temp_t *prefix_insn,
   //  *insn,
   //  combined
   //);
+
+  snowhousecpu_temp_s32_info_t temp_s32_info;
+  snowhousecpu_temp_s32_info_ctor (&temp_s32_info, imm_kind);
+
+  //snowhousecpu_set_insn_field_p (
+  //  SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, prefix_insn,
+  //  combined >> SNOWHOUSECPU_IMM16_BITSIZE
+  //);
+  //if (!is_s24_pcrel)
+  //{
+  //  snowhousecpu_set_insn_field_p (
+  //    SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, insn,
+  //    combined
+  //  );
+  //}
+  //else
+  //{
+  //  snowhousecpu_set_insn_field_p (
+  //    SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, insn,
+  //    combined
+  //  );
+  //}
+  //if (!is_pcrel)
+  //{
+  //}
+  if (temp_s32_info.is_pcrel)
+  {
+    combined = snowhousecpu_sign_extend(
+      combined >> 2ull,
+      30ull
+    );
+    //if (temp_s32_info.is_s24)
+    //{
+    //}
+    //else // if (!temp_s32_info.is_s24)
+    //{
+    //}
+  }
+
+  if (!temp_s32_info.is_s24)
+  {
+    snowhousecpu_set_insn_field_p (
+      SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, insn,
+      combined
+    );
+  }
+  else
+  {
+    snowhousecpu_set_insn_field_p (
+      SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, insn,
+      combined
+    );
+  }
+
   snowhousecpu_set_insn_field_p (
     SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, prefix_insn,
     combined >> SNOWHOUSECPU_IMM16_BITSIZE
   );
-  snowhousecpu_set_insn_field_p (
-    SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, insn,
-    combined
-  );
+
+  //if (!temp_s32_info.is_signed)
+  //{
+  //  //ret = snowhousecpu_zero_extend (temp_imm32, 32);
+  //  snowhousecpu_set_insn_field_p (
+  //    SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, insn,
+  //    combined
+  //  );
+  //}
+  //else // if (temp_s32_info->is_signed)
+  //{
+  //  //ret = snowhousecpu_sign_extend (temp_imm32, 32);
+  //  if (!temp_s32_info.is_pcrel)
+  //  {
+  //    //ret = snowhousecpu_sign_extend (temp_imm32, 32);
+  //  }
+  //  else // if (temp_s32_info->is_pcrel)
+  //  {
+  //    //ret = temp_imm32 & (~0x3);
+  //    //ret &= (~0x3ull);
+  //    //ret <<= 2ull;
+  //    if (!temp_s32_info.is_s24)
+  //    {
+  //    }
+  //    else // if (temp_s32_info->is_s24)
+  //    {
+  //    }
+  //  }
+  //}
+
+
   //fprintf(
   //  stderr,
   //  "snowhousecpu_put_s32_p() AFTER: p:%lx i:%lx c:%lx\n",
@@ -893,28 +1170,30 @@ snowhousecpu_get_shift_u5 (snowhousecpu_temp_t insn)
   );
 }
 static inline void
-snowhousecpu_put_shift_u5_p (snowhousecpu_temp_t *insn,
-			  snowhousecpu_temp_t imm)
+snowhousecpu_put_shift_u5_p (
+  snowhousecpu_temp_t *insn,
+  snowhousecpu_temp_t imm
+)
 {
   snowhousecpu_set_insn_field_p (
     SNOWHOUSECPU_SHIFT_IMM5_MASK, SNOWHOUSECPU_SHIFT_IMM5_BITPOS, insn, imm
   );
 }
 
-static inline void
-snowhousecpu_put_ext_imm (snowhousecpu_temp_t prefix_mask,
-                    snowhousecpu_temp_t prefix_bitpos,
-                    snowhousecpu_temp_t *prefix_insn,
-                    snowhousecpu_temp_t insn_mask,
-                    snowhousecpu_temp_t insn_bitsize,
-                    snowhousecpu_temp_t insn_bitpos,
-                    snowhousecpu_temp_t *insn,
-                    snowhousecpu_temp_t combined)
-{
-  snowhousecpu_set_insn_field_p (insn_mask, insn_bitpos, insn, combined);
-  *prefix_insn = snowhousecpu_set_insn_field (prefix_mask, prefix_bitpos,
-    *prefix_insn,
-    combined >> insn_bitsize);
-}
+//static inline void
+//snowhousecpu_put_ext_imm (snowhousecpu_temp_t prefix_mask,
+//                    snowhousecpu_temp_t prefix_bitpos,
+//                    snowhousecpu_temp_t *prefix_insn,
+//                    snowhousecpu_temp_t insn_mask,
+//                    snowhousecpu_temp_t insn_bitsize,
+//                    snowhousecpu_temp_t insn_bitpos,
+//                    snowhousecpu_temp_t *insn,
+//                    snowhousecpu_temp_t combined)
+//{
+//  snowhousecpu_set_insn_field_p (insn_mask, insn_bitpos, insn, combined);
+//  *prefix_insn = snowhousecpu_set_insn_field (prefix_mask, prefix_bitpos,
+//    *prefix_insn,
+//    combined >> insn_bitsize);
+//}
 /* -------- */
 #endif    // _SNOWHOUSECPU_H_

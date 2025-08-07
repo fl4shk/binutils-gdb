@@ -43,7 +43,7 @@
   non-add32, non-sub32 relocations
   for instructions that have immediates */
 static bfd_reloc_status_type
-snowhousecpu_elf_non_sub_imm_reloc (bfd *abfd,
+snowhousecpu_elf_non_add_sub_imm_reloc (bfd *abfd,
                               arelent *reloc_entry,
                               asymbol *symbol,
                               void *data,
@@ -51,7 +51,7 @@ snowhousecpu_elf_non_sub_imm_reloc (bfd *abfd,
                               bfd *output_bfd,
                               char **error_message);
 static bfd_reloc_status_type
-snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
+snowhousecpu_elf_do_non_add_sub_imm_reloc (bfd *input_bfd,
                                   reloc_howto_type *howto,
                                   asection *input_section,
                                   void *contents, bfd_vma address,
@@ -152,7 +152,7 @@ static reloc_howto_type snowhousecpu_elf_howto_table [] =
     false,                      /* pc_relative */
     SNOWHOUSECPU_IMM16_BITPOS,  /* bitpos */
     complain_overflow_signed,   /* complain_on_overflow */
-    snowhousecpu_elf_non_sub_imm_reloc, /* special_function */
+    snowhousecpu_elf_non_add_sub_imm_reloc, /* special_function */
     "R_SNOWHOUSECPU_S16",       /* name */
     false,                      /* partial_inplace */
     0x00000000,                 /* src_mask */
@@ -165,7 +165,7 @@ static reloc_howto_type snowhousecpu_elf_howto_table [] =
     false,                      /* pc_relative */
     SNOWHOUSECPU_IMM16_BITPOS,  /* bitpos */
     complain_overflow_dont,   /* complain_on_overflow */
-    snowhousecpu_elf_non_sub_imm_reloc, /* special_function */
+    snowhousecpu_elf_non_add_sub_imm_reloc, /* special_function */
     "R_SNOWHOUSECPU_S32_FOR_S16",       /* name */
     false,                      /* partial_inplace */
     0x00000000,                 /* src_mask */
@@ -197,6 +197,58 @@ static reloc_howto_type snowhousecpu_elf_howto_table [] =
     0x00000000,                 /* src_mask */
     (SNOWHOUSECPU_PRE_S16_EXT_LSMASK | SNOWHOUSECPU_IMM16_MASK),    /* dst_mask */
     false),                     /* pcrel_offset */
+  HOWTO (R_SNOWHOUSECPU_U16,    /* type */
+    0,                          /* rightshift */
+    2,                          /* size (0 = byte, 1 = short, 2 = long) */
+    SNOWHOUSECPU_IMM16_BITSIZE, /* bitsize */
+    false,                      /* pc_relative */
+    SNOWHOUSECPU_IMM16_BITPOS,  /* bitpos */
+    complain_overflow_signed,   /* complain_on_overflow */
+    snowhousecpu_elf_non_add_sub_imm_reloc, /* special_function */
+    "R_SNOWHOUSECPU_U16",       /* name */
+    false,                      /* partial_inplace */
+    0x00000000,                 /* src_mask */
+    SNOWHOUSECPU_IMM16_MASK,    /* dst_mask */
+    false),                     /* pcrel_offset */
+  HOWTO (R_SNOWHOUSECPU_S32_FOR_U16,    /* type */
+    0,                          /* rightshift */
+    4,                          /* size (0 = byte, 1 = short, 2 = long) */
+    32,                         /* bitsize */
+    false,                      /* pc_relative */
+    SNOWHOUSECPU_IMM16_BITPOS,  /* bitpos */
+    complain_overflow_dont,   /* complain_on_overflow */
+    snowhousecpu_elf_non_add_sub_imm_reloc, /* special_function */
+    "R_SNOWHOUSECPU_S32_FOR_U16",       /* name */
+    false,                      /* partial_inplace */
+    0x00000000,                 /* src_mask */
+    (SNOWHOUSECPU_PRE_S16_EXT_LSMASK | SNOWHOUSECPU_IMM16_MASK),    /* dst_mask */
+    false),                     /* pcrel_offset */
+  HOWTO (R_SNOWHOUSECPU_S32_FOR_U16_ADD32,    /* type */
+    0,                          /* rightshift */
+    4,                          /* size (0 = byte, 1 = short, 2 = long) */
+    32,                         /* bitsize */
+    false,                      /* pc_relative */
+    SNOWHOUSECPU_IMM16_BITPOS,  /* bitpos */
+    complain_overflow_dont,   /* complain_on_overflow */
+    snowhousecpu_elf_add_sub_reloc, /* special_function */
+    "R_SNOWHOUSECPU_S32_FOR_U16_ADD32",       /* name */
+    false,                      /* partial_inplace */
+    0x00000000,                 /* src_mask */
+    (SNOWHOUSECPU_PRE_S16_EXT_LSMASK | SNOWHOUSECPU_IMM16_MASK),    /* dst_mask */
+    false),                     /* pcrel_offset */
+  HOWTO (R_SNOWHOUSECPU_S32_FOR_U16_SUB32,    /* type */
+    0,                          /* rightshift */
+    4,                          /* size (0 = byte, 1 = short, 2 = long) */
+    32,                         /* bitsize */
+    false,                      /* pc_relative */
+    SNOWHOUSECPU_IMM16_BITPOS,  /* bitpos */
+    complain_overflow_dont,   /* complain_on_overflow */
+    snowhousecpu_elf_add_sub_reloc, /* special_function */
+    "R_SNOWHOUSECPU_S32_FOR_U16_SUB32",       /* name */
+    false,                      /* partial_inplace */
+    0x00000000,                 /* src_mask */
+    (SNOWHOUSECPU_PRE_S16_EXT_LSMASK | SNOWHOUSECPU_IMM16_MASK),    /* dst_mask */
+    false),                     /* pcrel_offset */
   HOWTO (R_SNOWHOUSECPU_SHIFT_U5,       /* type */
     0,                                  /* rightshift */
     0,                                  /* size (0 = byte, 1 = short, 2 = long) */
@@ -204,7 +256,7 @@ static reloc_howto_type snowhousecpu_elf_howto_table [] =
     false,                              /* pc_relative */
     SNOWHOUSECPU_SHIFT_IMM5_BITPOS,     /* bitpos */
     complain_overflow_unsigned,         /* complain_on_overflow */
-    snowhousecpu_elf_non_sub_imm_reloc, /* special_function */
+    snowhousecpu_elf_non_add_sub_imm_reloc, /* special_function */
     "R_SNOWHOUSECPU_SHIFT_U5",          /* name */
     false,                              /* partial_inplace */
     0x00000000,                         /* src_mask */
@@ -224,7 +276,7 @@ static reloc_howto_type snowhousecpu_elf_howto_table [] =
   //  (SNOWHOUSECPU_PRE_S16_EXT_LSMASK | SNOWHOUSECPU_IMM16_MASK),    /* dst_mask */
   //  false),                     /* pcrel_offset */
   HOWTO (R_SNOWHOUSECPU_S16_PCREL, /* type */
-      0,                        /* rightshift */
+      2,                        /* rightshift */
                                 // TODO: change this to have a rightshift of 2.
                                 // TODO: Needs to be changed in the hardware as well.
       2,                        /* size (0 = byte, 1 = short, 2 = long) */
@@ -240,7 +292,7 @@ static reloc_howto_type snowhousecpu_elf_howto_table [] =
       SNOWHOUSECPU_IMM16_MASK,
       true),                    /* pcrel_offset */
   HOWTO (R_SNOWHOUSECPU_S32_FOR_S16_PCREL,  /* type */
-      0,                          /* rightshift */
+      2,                          /* rightshift */
                                   // TODO: change this to have a rightshift of 2.
                                   // TODO: Needs to be changed in the hardware as well.
       4,                          /* size (0 = byte, 1 = short, 2 = long) */
@@ -248,12 +300,44 @@ static reloc_howto_type snowhousecpu_elf_howto_table [] =
       true,                       /* pc_relative */
       SNOWHOUSECPU_IMM16_BITPOS,       /* bitpos */
       complain_overflow_dont,     /* complain_on_overflow */
-      snowhousecpu_elf_non_sub_imm_reloc, /* special_function */
+      snowhousecpu_elf_non_add_sub_imm_reloc, /* special_function */
       "R_SNOWHOUSECPU_S32_FOR_S16_PCREL",   /* name */
       false,                      /* partial_inplace */
       0x00000000,                 /* src_mask */
       /* dst_mask */
       (SNOWHOUSECPU_PRE_S16_EXT_LSMASK | SNOWHOUSECPU_IMM16_MASK),
+      true),                      /* pcrel_offset */
+  HOWTO (R_SNOWHOUSECPU_S24_PCREL, /* type */
+      2,                        /* rightshift */
+                                // TODO: change this to have a rightshift of 2.
+                                // TODO: Needs to be changed in the hardware as well.
+      2,                        /* size (0 = byte, 1 = short, 2 = long) */
+      SNOWHOUSECPU_SIMM24_BITSIZE,    /* bitsize */
+      true,                     /* pc_relative */
+      SNOWHOUSECPU_SIMM24_BITPOS,     /* bitpos */
+      complain_overflow_signed,   /* complain_on_overflow */
+      bfd_elf_generic_reloc,    /* special_function */
+      "R_SNOWHOUSECPU_S24_PCREL",  /* name */
+      false,                    /* partial_inplace */
+      0x0000,                   /* src_mask */
+      /* dst_mask */
+      SNOWHOUSECPU_SIMM24_MASK,
+      true),                    /* pcrel_offset */
+  HOWTO (R_SNOWHOUSECPU_S32_FOR_S24_PCREL,  /* type */
+      2,                          /* rightshift */
+                                  // TODO: change this to have a rightshift of 2.
+                                  // TODO: Needs to be changed in the hardware as well.
+      4,                          /* size (0 = byte, 1 = short, 2 = long) */
+      32,                         /* bitsize */
+      true,                       /* pc_relative */
+      SNOWHOUSECPU_SIMM24_BITPOS,       /* bitpos */
+      complain_overflow_dont,     /* complain_on_overflow */
+      snowhousecpu_elf_non_add_sub_imm_reloc, /* special_function */
+      "R_SNOWHOUSECPU_S32_FOR_S24_PCREL",   /* name */
+      false,                      /* partial_inplace */
+      0x00000000,                 /* src_mask */
+      /* dst_mask */
+      (SNOWHOUSECPU_PRE_S16_EXT_LSMASK | SNOWHOUSECPU_SIMM24_MASK),
       true),                      /* pcrel_offset */
   /* -------- */
   /* 8-bit in-place setting, for local label subtraction.  */
@@ -485,9 +569,15 @@ static const struct snowhousecpu_reloc_map snowhousecpu_reloc_map [] =
   { BFD_RELOC_SNOWHOUSECPU_S32_FOR_S16, R_SNOWHOUSECPU_S32_FOR_S16 },
   { BFD_RELOC_SNOWHOUSECPU_S32_FOR_S16_ADD32, R_SNOWHOUSECPU_S32_FOR_S16_ADD32 },
   { BFD_RELOC_SNOWHOUSECPU_S32_FOR_S16_SUB32, R_SNOWHOUSECPU_S32_FOR_S16_SUB32 },
+  { BFD_RELOC_SNOWHOUSECPU_U16, R_SNOWHOUSECPU_U16 },
+  { BFD_RELOC_SNOWHOUSECPU_S32_FOR_U16, R_SNOWHOUSECPU_S32_FOR_U16 },
+  { BFD_RELOC_SNOWHOUSECPU_S32_FOR_U16_ADD32, R_SNOWHOUSECPU_S32_FOR_U16_ADD32 },
+  { BFD_RELOC_SNOWHOUSECPU_S32_FOR_U16_SUB32, R_SNOWHOUSECPU_S32_FOR_U16_SUB32 },
   { BFD_RELOC_SNOWHOUSECPU_SHIFT_U5, R_SNOWHOUSECPU_SHIFT_U5 },
   { BFD_RELOC_SNOWHOUSECPU_S16_PCREL, R_SNOWHOUSECPU_S16_PCREL },
   { BFD_RELOC_SNOWHOUSECPU_S32_FOR_S16_PCREL, R_SNOWHOUSECPU_S32_FOR_S16_PCREL },
+  { BFD_RELOC_SNOWHOUSECPU_S24_PCREL, R_SNOWHOUSECPU_S24_PCREL },
+  { BFD_RELOC_SNOWHOUSECPU_S32_FOR_S24_PCREL, R_SNOWHOUSECPU_S32_FOR_S24_PCREL },
   /* -------- */
   //{ BFD_RELOC_SNOWHOUSECPU_FDE_32_PCREL, R_SNOWHOUSECPU_FDE_32_PCREL },
   { BFD_RELOC_SNOWHOUSECPU_SET8, R_SNOWHOUSECPU_SET8 },
@@ -557,6 +647,52 @@ snowhousecpu_lookup_howto (unsigned int r_type)
 {
   return &snowhousecpu_elf_howto_table[r_type];
 }
+static bool
+snowhousecpu_howto_is_relaxable_unsigned (reloc_howto_type *howto)
+{
+  switch (howto->type)
+  {
+    case R_SNOWHOUSECPU_U16:
+    case R_SNOWHOUSECPU_S32_FOR_U16:
+    case R_SNOWHOUSECPU_S32_FOR_U16_ADD32:
+    case R_SNOWHOUSECPU_S32_FOR_U16_SUB32:
+      return true;
+    default:
+      return false;
+  }
+}
+static snowhousecpu_imm_kind_t
+snowhousecpu_howto_to_imm_kind (reloc_howto_type *howto)
+{
+  switch (howto->type)
+  {
+    case R_SNOWHOUSECPU_S16:
+    case R_SNOWHOUSECPU_S32_FOR_S16:
+    case R_SNOWHOUSECPU_S32_FOR_S16_ADD32:
+    case R_SNOWHOUSECPU_S32_FOR_S16_SUB32:
+      return SNOWHOUSECPU_IMM_KIND_S16;
+
+    case R_SNOWHOUSECPU_U16:
+    case R_SNOWHOUSECPU_S32_FOR_U16:
+    case R_SNOWHOUSECPU_S32_FOR_U16_ADD32:
+    case R_SNOWHOUSECPU_S32_FOR_U16_SUB32:
+      return SNOWHOUSECPU_IMM_KIND_U16;
+
+    case R_SNOWHOUSECPU_SHIFT_U5:
+      return SNOWHOUSECPU_IMM_KIND_SHIFT_U5;
+
+    case R_SNOWHOUSECPU_S16_PCREL:
+    case R_SNOWHOUSECPU_S32_FOR_S16_PCREL:
+      return SNOWHOUSECPU_IMM_KIND_PCREL_S16;
+
+    case R_SNOWHOUSECPU_S24_PCREL:
+    case R_SNOWHOUSECPU_S32_FOR_S24_PCREL:
+      return SNOWHOUSECPU_IMM_KIND_PCREL_S24;
+
+    default:
+      return SNOWHOUSECPU_IMM_KIND_NONE;
+  }
+}
 /* -------- */
 /* Implement elf_info_to_howto:
    Given a ELF32 relocation, fill in a arelent structure.  */
@@ -586,7 +722,7 @@ snowhousecpu_elf_info_to_howto (bfd *abfd,
   non-add32, non-sub32 relocations
   for instructions that have immediates */
 static bfd_reloc_status_type
-snowhousecpu_elf_non_sub_imm_reloc (bfd *abfd,
+snowhousecpu_elf_non_add_sub_imm_reloc (bfd *abfd,
                               arelent *reloc_entry,
                               asymbol *symbol,
                               void *data,
@@ -610,7 +746,7 @@ snowhousecpu_elf_non_sub_imm_reloc (bfd *abfd,
     return bfd_elf_generic_reloc (abfd, reloc_entry, symbol, data,
       input_section, output_bfd, error_message);
   }
-  return snowhousecpu_elf_do_non_sub_imm_reloc
+  return snowhousecpu_elf_do_non_add_sub_imm_reloc
     (abfd, reloc_entry->howto,
     input_section,
     data,
@@ -623,7 +759,7 @@ snowhousecpu_elf_non_sub_imm_reloc (bfd *abfd,
     reloc_entry->addend);
 }
 static bfd_reloc_status_type
-snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
+snowhousecpu_elf_do_non_add_sub_imm_reloc (bfd *input_bfd,
                                   reloc_howto_type *howto,
                                   asection *input_section,
                                   void *contents, bfd_vma address,
@@ -670,26 +806,13 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
       /* -------- */
       howto->type == R_SNOWHOUSECPU_S16
       || howto->type == R_SNOWHOUSECPU_S32_FOR_S16
+
+      || howto->type == R_SNOWHOUSECPU_U16
+      || howto->type == R_SNOWHOUSECPU_S32_FOR_U16
+
       //|| howto->type == R_SNOWHOUSECPU_S16_PCREL
       //|| howto->type == R_SNOWHOUSECPU_S32_FOR_S16_PCREL
       || howto->type == R_SNOWHOUSECPU_SHIFT_U5
-      //|| howto->type == R_SNOWHOUSECPU_G1_S17_FOR_U5
-      //|| howto->type == R_SNOWHOUSECPU_G1_S32_FOR_U5
-      //|| howto->type == R_SNOWHOUSECPU_G1_S32_FOR_U5_NO_RELAX
-      //|| howto->type == R_SNOWHOUSECPU_G1_S5
-      //|| howto->type == R_SNOWHOUSECPU_G1_S17
-      //|| howto->type == R_SNOWHOUSECPU_G1_S32
-      //|| howto->type == R_SNOWHOUSECPU_G1_S32_NO_RELAX
-      /* -------- */
-      //|| howto->type == R_SNOWHOUSECPU_G5_INDEX_S7
-      //|| howto->type == R_SNOWHOUSECPU_G5_INDEX_S19
-      //|| howto->type == R_SNOWHOUSECPU_G5_INDEX_S32
-      //|| howto->type == R_SNOWHOUSECPU_G5_INDEX_S32_NO_RELAX
-      /* -------- */
-      //|| howto->type == R_SNOWHOUSECPU_G7_ICRELOAD_S5
-      //|| howto->type == R_SNOWHOUSECPU_G7_ICRELOAD_S17
-      //|| howto->type == R_SNOWHOUSECPU_G7_ICRELOAD_S32
-      //|| howto->type == R_SNOWHOUSECPU_G7_ICRELOAD_S32_NO_RELAX
       /* -------- */
     );
 
@@ -704,7 +827,10 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
     //  howto->type == R_SNOWHOUSECPU_G1_S32,
     //  howto->type == R_SNOWHOUSECPU_G1_S32_NO_RELAX
     //);
-    if (howto->type == R_SNOWHOUSECPU_S16)
+    if (
+      howto->type == R_SNOWHOUSECPU_S16
+      || howto->type == R_SNOWHOUSECPU_U16
+    )
     {
       //snowhousecpu_temp_t val = 0;
       insn = bfd_get_32 (input_bfd, contents + address);
@@ -721,7 +847,10 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
       );
       bfd_put_32 (input_bfd, insn, contents + address);
     }
-    else if (howto->type == R_SNOWHOUSECPU_S32_FOR_S16)
+    else if (
+      howto->type == R_SNOWHOUSECPU_S32_FOR_S16
+      || howto->type == R_SNOWHOUSECPU_S32_FOR_U16
+    )
     {
       const unsigned
         insn_dist = snowhousecpu_have_pre_distance
@@ -736,7 +865,10 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
       //  (unsigned) (prefix_insn),
       //  (unsigned) (insn)
       //);
-      snowhousecpu_put_s32_p (&prefix_insn, &insn, relocation);
+      snowhousecpu_put_s32_p (
+	&prefix_insn, &insn, relocation,
+	snowhousecpu_howto_to_imm_kind (howto)
+      );
 
       bfd_put_32 (input_bfd, prefix_insn, contents + address);
       bfd_put_32 (input_bfd, insn, contents + address + insn_dist);
@@ -778,147 +910,6 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
 
       bfd_put_32 (input_bfd, insn, contents + address);
     }
-
-    //if (howto->type == R_SNOWHOUSECPU_G1_U5
-    //  || howto->type == R_SNOWHOUSECPU_G1_S5)
-    //{
-    //  snowhousecpu_temp_t val = 0;
-    //  insn = bfd_get_16 (input_bfd, contents + address);
-    //  val = snowhousecpu_get_insn_field_ei
-    //    (&snowhousecpu_enc_info_g1_i5, insn);
-    //  relocation += howto->type == R_SNOWHOUSECPU_G1_S5
-    //    ? snowhousecpu_sign_extend
-    //      (val, SNOWHOUSECPU_G1_I5_BITSIZE)
-    //    : snowhousecpu_zero_extend
-    //      (val, SNOWHOUSECPU_G1_I5_BITSIZE);
-    //  bfd_put_16 (input_bfd, insn, contents + address);
-    //}
-    //else if (howto->type == R_SNOWHOUSECPU_G1_S17_FOR_U5
-    //  || howto->type == R_SNOWHOUSECPU_G1_S17)
-    //{
-    //  const unsigned
-    //    insn_dist = snowhousecpu_have_pre_distance
-    //      (SNOWHOUSECPU_HAVE_PLP_PRE, SNOWHOUSECPU_HAVE_PRE_NONE);
-    //  prefix_insn = bfd_get_16 (input_bfd, contents + address);
-    //  insn = bfd_get_16 (input_bfd, contents + address + insn_dist);
-    //  relocation += snowhousecpu_sign_extend
-    //    (snowhousecpu_get_g1_s17 (prefix_insn, insn),
-    //    SNOWHOUSECPU_G1_I5_BITSIZE + SNOWHOUSECPU_G0_PRE_S12_BITSIZE);
-    //  snowhousecpu_put_g1_s17 (&prefix_insn, &insn, relocation);
-    //  bfd_put_16 (input_bfd, prefix_insn, contents + address);
-    //  bfd_put_16 (input_bfd, insn, contents + address + insn_dist);
-    //}
-    //else if (howto->type == R_SNOWHOUSECPU_G1_S32_FOR_U5
-    //  || howto->type == R_SNOWHOUSECPU_G1_S32_FOR_U5_NO_RELAX
-    //  || howto->type == R_SNOWHOUSECPU_G1_S32
-    //  || howto->type == R_SNOWHOUSECPU_G1_S32_NO_RELAX)
-    //{
-    //  const unsigned
-    //    insn_dist = snowhousecpu_have_pre_distance
-    //      (SNOWHOUSECPU_HAVE_PLP_LPRE, SNOWHOUSECPU_HAVE_PRE_NONE);
-    //  prefix_insn = snowhousecpu_get_insn_32 (input_bfd, contents + address);
-    //  insn = bfd_get_16 (input_bfd, contents + address + insn_dist);
-    //  //fprintf (
-    //  //  stderr,
-    //  //  "debug: prefix_insn insn; 0: %x %x\n",
-    //  //  (unsigned)prefix_insn, (unsigned)insn
-    //  //);
-    //  relocation += snowhousecpu_get_g1_s32 (prefix_insn, insn);
-    //  snowhousecpu_put_g1_s32 (&prefix_insn, &insn, relocation);
-    //  //fprintf (
-    //  //  stderr,
-    //  //  "debug: prefix_insn insn; 1: %x %x\n",
-    //  //  (unsigned)prefix_insn, (unsigned)insn
-    //  //);
-    //  snowhousecpu_put_insn_32 (input_bfd, prefix_insn, contents + address);
-    //  bfd_put_16 (input_bfd, insn, contents + address + insn_dist);
-    //}
-    //else if (howto->type == R_SNOWHOUSECPU_G5_INDEX_S7)
-    //{
-    //  snowhousecpu_temp_t val = 0;
-    //  insn = bfd_get_16 (input_bfd, contents + address);
-    //  val = snowhousecpu_get_insn_field_ei
-    //    (&snowhousecpu_enc_info_g5_index_ra_simm_s7, insn);
-    //  relocation += snowhousecpu_sign_extend
-    //    (val, SNOWHOUSECPU_G5_INDEX_RA_SIMM_S7_BITSIZE);
-    //  bfd_put_16 (input_bfd, insn, contents + address);
-    //}
-    //else if (howto->type == R_SNOWHOUSECPU_G5_INDEX_S19)
-    //{
-    //  const unsigned
-    //    insn_dist = snowhousecpu_have_pre_distance
-    //      (SNOWHOUSECPU_HAVE_PLP_PRE, SNOWHOUSECPU_HAVE_PRE_NONE);
-    //  prefix_insn = bfd_get_16 (input_bfd, contents + address);
-    //  insn = bfd_get_16 (input_bfd, contents + address + insn_dist);
-    //  relocation += snowhousecpu_sign_extend
-    //    (snowhousecpu_get_g5_index_s19 (prefix_insn, insn),
-    //    SNOWHOUSECPU_G5_INDEX_RA_SIMM_S7_BITSIZE + SNOWHOUSECPU_G0_PRE_S12_BITSIZE);
-    //  snowhousecpu_put_g5_index_s19 (&prefix_insn, &insn, relocation);
-    //  bfd_put_16 (input_bfd, prefix_insn, contents + address);
-    //  bfd_put_16 (input_bfd, insn, contents + address + insn_dist);
-    //}
-    //else if (howto->type == R_SNOWHOUSECPU_G5_INDEX_S32
-    //  || howto->type == R_SNOWHOUSECPU_G5_INDEX_S32_NO_RELAX)
-    //{
-    //  const unsigned
-    //    insn_dist = snowhousecpu_have_pre_distance
-    //      (SNOWHOUSECPU_HAVE_PLP_LPRE, SNOWHOUSECPU_HAVE_PRE_NONE);
-    //  prefix_insn = snowhousecpu_get_insn_32 (input_bfd, contents + address);
-    //  insn = bfd_get_16 (input_bfd, contents + address + insn_dist);
-    //  //fprintf (
-    //  //  stderr,
-    //  //  "debug: prefix_insn insn; 0: %x %x\n",
-    //  //  (unsigned)prefix_insn, (unsigned)insn
-    //  //);
-    //  relocation += snowhousecpu_get_g5_index_s32 (prefix_insn, insn);
-    //  snowhousecpu_put_g5_index_s32 (&prefix_insn, &insn, relocation);
-    //  //fprintf (
-    //  //  stderr,
-    //  //  "debug: prefix_insn insn; 1: %x %x\n",
-    //  //  (unsigned)prefix_insn, (unsigned)insn
-    //  //);
-    //  snowhousecpu_put_insn_32 (input_bfd, prefix_insn, contents + address);
-    //  bfd_put_16 (input_bfd, insn, contents + address + insn_dist);
-    //}
-    //else if (howto->type == R_SNOWHOUSECPU_G7_ICRELOAD_S5)
-    //{
-    //  snowhousecpu_temp_t val = 0;
-    //  insn = bfd_get_16 (input_bfd, contents + address);
-    //  val = snowhousecpu_get_insn_field_ei
-    //    (&snowhousecpu_enc_info_g7_icreload_s5, insn);
-    //  relocation += snowhousecpu_sign_extend
-    //    (val, SNOWHOUSECPU_G7_ICRELOAD_S5_BITSIZE);
-    //  bfd_put_16 (input_bfd, insn, contents + address);
-    //}
-    //else if (howto->type == R_SNOWHOUSECPU_G7_ICRELOAD_S17)
-    //{
-    //  const unsigned
-    //    insn_dist = snowhousecpu_have_pre_distance
-    //      (SNOWHOUSECPU_HAVE_PLP_PRE, SNOWHOUSECPU_HAVE_PRE_NONE);
-    //  prefix_insn = bfd_get_16 (input_bfd, contents + address);
-    //  insn = bfd_get_16 (input_bfd, contents + address + insn_dist);
-    //  relocation += snowhousecpu_sign_extend
-    //    (snowhousecpu_get_g7_icreload_s17 (prefix_insn, insn),
-    //    SNOWHOUSECPU_G7_ICRELOAD_S5_BITSIZE + SNOWHOUSECPU_G0_PRE_S12_BITSIZE);
-    //  snowhousecpu_put_g7_icreload_s17 (&prefix_insn, &insn, relocation);
-    //  bfd_put_16 (input_bfd, prefix_insn, contents + address);
-    //  bfd_put_16 (input_bfd, insn, contents + address + insn_dist);
-    //}
-    //else //if (
-    //  //howto->type == R_SNOWHOUSECPU_G7_ICRELOAD_S32
-    //  //|| howto->type == R_SNOWHOUSECPU_G7_ICRELOAD_S32_NO_RELAX
-    ////)
-    //{
-    //  const unsigned
-    //    insn_dist = snowhousecpu_have_pre_distance
-    //      (SNOWHOUSECPU_HAVE_PLP_LPRE, SNOWHOUSECPU_HAVE_PRE_NONE);
-    //  prefix_insn = snowhousecpu_get_insn_32 (input_bfd, contents + address);
-    //  insn = bfd_get_16 (input_bfd, contents + address + insn_dist);
-    //  relocation += snowhousecpu_get_g7_icreload_s32 (prefix_insn, insn);
-    //  snowhousecpu_put_g7_icreload_s32 (&prefix_insn, &insn, relocation);
-    //  snowhousecpu_put_insn_32 (input_bfd, prefix_insn, contents + address);
-    //  bfd_put_16 (input_bfd, insn, contents + address + insn_dist);
-    //}
   }
   else // if (howto->pc_relative)
   {
@@ -943,6 +934,8 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
       //|| howto->type == R_SNOWHOUSECPU_G3_S32_PCREL_NO_RELAX
       howto->type == R_SNOWHOUSECPU_S16_PCREL
       || howto->type == R_SNOWHOUSECPU_S32_FOR_S16_PCREL
+      || howto->type == R_SNOWHOUSECPU_S24_PCREL
+      || howto->type == R_SNOWHOUSECPU_S32_FOR_S24_PCREL
     );
 
     // Check whether the relocation is word-aligned
@@ -950,7 +943,10 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
     {
       return bfd_reloc_outofrange;
     }
-    if (howto->type == R_SNOWHOUSECPU_S16_PCREL)
+    if (
+      howto->type == R_SNOWHOUSECPU_S16_PCREL
+      || howto->type == R_SNOWHOUSECPU_S24_PCREL
+    )
     {
       const unsigned
         temp_length = snowhousecpu_have_pre_insn_length
@@ -959,12 +955,24 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
       relocation -= temp_length;
       //snowhousecpu_set_insn_field_ei_p (&snowhousecpu_enc_info_g3_s9, &insn,
       //  relocation);
-      snowhousecpu_set_insn_field_p (
-        SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, relocation
-      );
+      if (howto->type == R_SNOWHOUSECPU_S16_PCREL)
+      {
+	snowhousecpu_set_insn_field_p (
+	  SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, relocation >> 2
+	);
+      }
+      else
+      {
+	snowhousecpu_set_insn_field_p (
+	  SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, &insn, relocation >> 2
+	);
+      }
       bfd_put_32 (input_bfd, insn, contents + address);
     }
-    else if (howto->type == R_SNOWHOUSECPU_S32_FOR_S16_PCREL)
+    else if (
+      howto->type == R_SNOWHOUSECPU_S32_FOR_S16_PCREL
+      || howto->type == R_SNOWHOUSECPU_S32_FOR_S24_PCREL
+    )
     {
       const unsigned
         temp_length = snowhousecpu_have_pre_insn_length
@@ -981,7 +989,10 @@ snowhousecpu_elf_do_non_sub_imm_reloc (bfd *input_bfd,
       //  ;
       relocation -= temp_length;
       //snowhousecpu_put_g3_s21 (&prefix_insn, &insn, relocation);
-      snowhousecpu_put_s32_p (&prefix_insn, &insn, relocation);
+      snowhousecpu_put_s32_p (
+	&prefix_insn, &insn, relocation,
+	snowhousecpu_howto_to_imm_kind (howto)
+      );
       bfd_put_32 (input_bfd, prefix_insn, contents + address);
       bfd_put_32 (input_bfd, insn, contents + address + insn_dist);
     }
@@ -1131,6 +1142,8 @@ snowhousecpu_elf_do_add_sub_reloc (bfd *input_bfd, reloc_howto_type *howto,
     //case R_SNOWHOUSECPU_G7_ICRELOAD_S32_SUB32:
     case R_SNOWHOUSECPU_S32_FOR_S16_ADD32:
     case R_SNOWHOUSECPU_S32_FOR_S16_SUB32:
+    case R_SNOWHOUSECPU_S32_FOR_U16_ADD32:
+    case R_SNOWHOUSECPU_S32_FOR_U16_SUB32:
     {
       const unsigned
         insn_dist = snowhousecpu_have_pre_distance
@@ -1172,21 +1185,35 @@ snowhousecpu_elf_do_add_sub_reloc (bfd *input_bfd, reloc_howto_type *howto,
         //case R_SNOWHOUSECPU_G1_S32_FOR_U5_ADD32:
         //case R_SNOWHOUSECPU_G1_S32_ADD32:
         case R_SNOWHOUSECPU_S32_FOR_S16_ADD32:
+        case R_SNOWHOUSECPU_S32_FOR_U16_ADD32:
           //simm = snowhousecpu_get_g1_s32 (prefix_insn, insn);
-          simm = snowhousecpu_get_s32 (prefix_insn, insn);
+          simm = snowhousecpu_get_s32 (
+	    prefix_insn, insn,
+	    snowhousecpu_howto_to_imm_kind (howto)
+	  );
           relocation += simm;
           //snowhousecpu_put_g1_s32 (&prefix_insn, &insn, relocation);
-          snowhousecpu_put_s32_p (&prefix_insn, &insn, relocation);
+          snowhousecpu_put_s32_p (
+	    &prefix_insn, &insn, relocation,
+	    snowhousecpu_howto_to_imm_kind (howto)
+	  );
           break;
         //case R_SNOWHOUSECPU_G1_S32_FOR_U5_SUB32:
         //case R_SNOWHOUSECPU_G1_S32_SUB32:
         case R_SNOWHOUSECPU_S32_FOR_S16_SUB32:
+        case R_SNOWHOUSECPU_S32_FOR_U16_SUB32:
           //simm = snowhousecpu_get_g1_s32 (prefix_insn, insn);
-          simm = snowhousecpu_get_s32 (prefix_insn, insn);
+          simm = snowhousecpu_get_s32 (
+	    prefix_insn, insn,
+	    snowhousecpu_howto_to_imm_kind (howto)
+	  );
           //relocation -= simm;
           relocation = simm - relocation;
           //snowhousecpu_put_g1_s32 (&prefix_insn, &insn, relocation);
-          snowhousecpu_put_s32_p (&prefix_insn, &insn, relocation);
+          snowhousecpu_put_s32_p (
+	    &prefix_insn, &insn, relocation,
+	    snowhousecpu_howto_to_imm_kind (howto)
+	  );
           break;
         //case R_SNOWHOUSECPU_G3_S32_PCREL_ADD32:
         //  simm = snowhousecpu_get_g3_s32 (prefix_insn, insn);
@@ -1398,10 +1425,14 @@ snowhousecpu_elf_relocate_section (bfd *output_bfd,
 
         case R_SNOWHOUSECPU_S16:
         case R_SNOWHOUSECPU_S32_FOR_S16:
+        case R_SNOWHOUSECPU_U16:
+        case R_SNOWHOUSECPU_S32_FOR_U16:
         case R_SNOWHOUSECPU_SHIFT_U5:
         case R_SNOWHOUSECPU_S16_PCREL:
         case R_SNOWHOUSECPU_S32_FOR_S16_PCREL:
-          r = snowhousecpu_elf_do_non_sub_imm_reloc (input_bfd, howto,
+        case R_SNOWHOUSECPU_S24_PCREL:
+        case R_SNOWHOUSECPU_S32_FOR_S24_PCREL:
+          r = snowhousecpu_elf_do_non_add_sub_imm_reloc (input_bfd, howto,
                 input_section, contents,
                 rel->r_offset, relocation,
                 rel->r_addend);
@@ -1409,6 +1440,8 @@ snowhousecpu_elf_relocate_section (bfd *output_bfd,
 
         case R_SNOWHOUSECPU_S32_FOR_S16_ADD32:
         case R_SNOWHOUSECPU_S32_FOR_S16_SUB32:
+        case R_SNOWHOUSECPU_S32_FOR_U16_ADD32:
+        case R_SNOWHOUSECPU_S32_FOR_U16_SUB32:
         //case R_SNOWHOUSECPU_S32_FOR_S16_PCREL_ADD32:
         //case R_SNOWHOUSECPU_S32_FOR_S16_PCREL_SUB32:
         case R_SNOWHOUSECPU_PSEUDO_ADD8:
@@ -1512,7 +1545,8 @@ snowhousecpu_elf_relocate_section (bfd *output_bfd,
 /* -------- */
 static bool
 relax_can_shrink_value (bfd_vma value,
-  snowhousecpu_temp_t curr_bitsize, snowhousecpu_temp_t target_bitsize//,
+  snowhousecpu_temp_t curr_bitsize, snowhousecpu_temp_t target_bitsize,
+  bool is_signed
   //bool have_small_imm_unsigned_target
 )
 {
@@ -1548,13 +1582,33 @@ relax_can_shrink_value (bfd_vma value,
   //  (uint32_t) curr_value_se
   //  == (uint32_t) target_value_se
   //);
+
+  //snowhousecpu_temp_t
+  //  curr_value_ext = snowhousecpu_sign_extend (value, curr_bitsize),
+  //  target_value_ext
+  //    = snowhousecpu_sign_extend (value, target_bitsize);
+  //    //!have_small_imm_unsigned_target
+  //    //? snowhousecpu_sign_extend (value, target_bitsize)
+  //    //: snowhousecpu_zero_extend (value, target_bitsize);
   snowhousecpu_temp_t
-    curr_value_ext = snowhousecpu_sign_extend (value, curr_bitsize),
+    curr_value_ext,
+    target_value_ext;
+  if (is_signed)
+  {
+    curr_value_ext = snowhousecpu_sign_extend (value, curr_bitsize);
     target_value_ext
-      = snowhousecpu_sign_extend (value, target_bitsize);
-      //!have_small_imm_unsigned_target
-      //? snowhousecpu_sign_extend (value, target_bitsize)
-      //: snowhousecpu_zero_extend (value, target_bitsize);
+      = (
+      snowhousecpu_sign_extend (value, target_bitsize)
+    );
+  }
+  else
+  {
+    curr_value_ext = snowhousecpu_zero_extend (value, curr_bitsize);
+    target_value_ext
+      = (
+      snowhousecpu_zero_extend (value, target_bitsize)
+    );
+  }
 
   return (
     (uint32_t) curr_value_ext
@@ -1952,7 +2006,9 @@ snowhousecpu_do_relax_prefix (bfd *abfd,
   //else
   if (
     howto->type == R_SNOWHOUSECPU_S32_FOR_S16
+    || howto->type == R_SNOWHOUSECPU_S32_FOR_U16
     || howto->type == R_SNOWHOUSECPU_S32_FOR_S16_PCREL
+    || howto->type == R_SNOWHOUSECPU_S32_FOR_S24_PCREL
     //howto->type == R_SNOWHOUSECPU_G1_S17_FOR_U5
     //|| howto->type == R_SNOWHOUSECPU_G1_S32_FOR_U5
     //|| howto->type == R_SNOWHOUSECPU_G1_S17
@@ -2013,20 +2069,39 @@ snowhousecpu_do_relax_prefix (bfd *abfd,
       prefix_insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE;
       insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE;
       target_bitsize = insn_bitsize;
+      //curr_bitsize = prefix_insn_bitsize + insn_bitsize;
+      //curr_bitsize = 32;
     }
-    else if (howto->type == R_SNOWHOUSECPU_S32_FOR_S16_PCREL)
+    else if (howto->type == R_SNOWHOUSECPU_S32_FOR_U16)
     {
       prefix_insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE;
       insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE;
       target_bitsize = insn_bitsize;
+      //curr_bitsize = prefix_insn_bitsize + insn_bitsize;
+      //curr_bitsize = 32;
+    }
+    else if (howto->type == R_SNOWHOUSECPU_S32_FOR_S16_PCREL)
+    {
+      prefix_insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE - 2;
+      insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE + 2; // right shift of 2
+      target_bitsize = insn_bitsize;
+      //curr_bitsize = prefix_insn_bitsize + insn_bitsize;
+      //curr_bitsize = 32;
+    }
+    else if (howto->type == R_SNOWHOUSECPU_S32_FOR_S24_PCREL)
+    {
+      prefix_insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE - 2;
+      insn_bitsize = SNOWHOUSECPU_SIMM24_BITSIZE + 2; // right shift of 2
+      target_bitsize = insn_bitsize;
+      //curr_bitsize = 32;
     }
     else
     {
       BFD_ASSERT (0);
     }
-
-
     curr_bitsize = prefix_insn_bitsize + insn_bitsize;
+
+
 
     //printf ("snowhousecpu partial relax: have howto: "
     //  "0x%x 0x%x; %d; %d %d; %d %d\n",
@@ -2038,9 +2113,10 @@ snowhousecpu_do_relax_prefix (bfd *abfd,
     if (relax_can_shrink_value
       (!howto->pc_relative
         ? value
-        : gap - shrink_one_unit_dist,
+        : (gap - shrink_one_unit_dist) /*>> 2*/,
         //: gap,
-      curr_bitsize, target_bitsize//,
+      curr_bitsize, target_bitsize,
+      !snowhousecpu_howto_is_relaxable_unsigned (howto)
       //!was_lpre && (
       //  //howto->type >= R_SNOWHOUSECPU_G1_U5
       //  //&& howto->type <= R_SNOWHOUSECPU_G1_S32_FOR_U5_NO_RELAX
@@ -2085,23 +2161,6 @@ snowhousecpu_do_relax_prefix (bfd *abfd,
         //insn_mask,
       };
 
-      //args.rm_prefix = (
-      //  true
-      //  //!was_lpre 
-      //  //|| relax_can_shrink_value 
-      //  //  (!howto->pc_relative
-      //  //    ? value
-      //  //    : gap - shrink_two_units_dist, // value
-      //  //    //: gap, 
-      //  //    prefix_insn_bitsize, // curr_bitsize
-      //  //    insn_bitsize, // target_bitsize
-      //  //    //(
-      //  //    //  howto->type >= R_SNOWHOUSECPU_G1_U5
-      //  //    //  && howto->type <= R_SNOWHOUSECPU_G1_S32_FOR_U5_NO_RELAX
-      //  //    //)
-      //  //    is_small_imm_unsigned // have_small_imm_unsigned_target
-      //  //    )
-      //);
 
       if (!snowhousecpu_do_relax_prefix_innards (&args))
       {

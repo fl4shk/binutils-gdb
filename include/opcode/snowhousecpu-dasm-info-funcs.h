@@ -173,34 +173,44 @@ snowhousecpu_dasm_info_do_disassemble_worker (snowhousecpu_dasm_info_t *self)
     }
     else
     {
-      switch (self->opc_info->oparg)
+      switch (snowhousecpu_get_imm_kind(self->opc_info))
       {
-        case SNOWHOUSECPU_OA_RA_S16:
-        case SNOWHOUSECPU_OA_RA_RB_S16:
-        case SNOWHOUSECPU_OA_RA_RB_SHIFT_U5:
-        case SNOWHOUSECPU_OA_RA_PCREL_S16:
-        case SNOWHOUSECPU_OA_RA_RB_PCREL_S16:
-        case SNOWHOUSECPU_OA_RB_RA_PCREL_S16:
-        case SNOWHOUSECPU_OA_RA_PC_PCREL_S16:
-        case SNOWHOUSECPU_OA_S16:
-          self->have_non_pre_imm = true;
-          //fprintf (
-          //  stderr,
-          //  "debug (have_non_pre_imm): %s %u\n",
-          //  self->opc_info->name,
-          //  self->opc_info->oparg
-          //);
-          break;
-        default:
-          self->have_non_pre_imm = false;
-          //fprintf (
-          //  stderr,
-          //  "debug (!have_non_pre_imm): %s %u\n",
-          //  self->opc_info->name,
-          //  self->opc_info->oparg
-          //);
-          break;
+	case SNOWHOUSECPU_IMM_KIND_NONE:
+	case SNOWHOUSECPU_IMM_KIND_PRE_S16:
+	  self->have_non_pre_imm = false;
+	  break;
+	default:
+	  self->have_non_pre_imm = true;
+	  break;
       }
+      //switch (self->opc_info->oparg)
+      //{
+      //  case SNOWHOUSECPU_OA_RA_S16:
+      //  case SNOWHOUSECPU_OA_RA_RB_S16:
+      //  case SNOWHOUSECPU_OA_RA_RB_SHIFT_U5:
+      //  //case SNOWHOUSECPU_OA_RA_PCREL_S16:
+      //  case SNOWHOUSECPU_OA_RA_RB_PCREL_S16:
+      //  case SNOWHOUSECPU_OA_RB_RA_PCREL_S16:
+      //  case SNOWHOUSECPU_OA_RA_PC_PCREL_S16:
+      //  //case SNOWHOUSECPU_OA_PRE_S16:
+      //    self->have_non_pre_imm = true;
+      //    //fprintf (
+      //    //  stderr,
+      //    //  "debug (have_non_pre_imm): %s %u\n",
+      //    //  self->opc_info->name,
+      //    //  self->opc_info->oparg
+      //    //);
+      //    break;
+      //  default:
+      //    self->have_non_pre_imm = false;
+      //    //fprintf (
+      //    //  stderr,
+      //    //  "debug (!have_non_pre_imm): %s %u\n",
+      //    //  self->opc_info->name,
+      //    //  self->opc_info->oparg
+      //    //);
+      //    break;
+      //}
     }
   }
   else

@@ -59,10 +59,18 @@ snowhousecpu_dasm_info_do_disassemble (snowhousecpu_dasm_info_t *self)
   const snowhousecpu_temp_t temp_simm16 = (
     snowhousecpu_get_insn_field (SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, self->iword)
   );
+  const snowhousecpu_temp_t temp_simm24 = (
+    snowhousecpu_get_insn_field (SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, self->iword)
+  );
   snowhousecpu_temp_t temp_simm32 = snowhousecpu_sign_extend (
     temp_simm16, SNOWHOUSECPU_IMM16_BITSIZE
   );
+  snowhousecpu_temp_t temp_simm24_to_32 = snowhousecpu_sign_extend (
+    temp_simm24, SNOWHOUSECPU_SIMM24_BITSIZE
+  );
+  self->uimm = temp_simm16;
   self->simm = temp_simm32;
+  self->simm24 = temp_simm24_to_32;
 
   if (
     snowhousecpu_get_insn_field (SNOWHOUSECPU_OP_MASK, SNOWHOUSECPU_OP_BITPOS, self->iword)
@@ -91,7 +99,9 @@ snowhousecpu_dasm_info_do_disassemble (snowhousecpu_dasm_info_t *self)
       ),
       32
     );
+    self->uimm = temp_simm32;
     self->simm = temp_simm32; // change it for the bit shifts by immediate values
+    self->simm24 = temp_simm32;
   }
 
   snowhousecpu_dasm_info_do_disassemble_worker (self);
@@ -250,6 +260,16 @@ do_print_insn_snowhousecpu (snowhousecpu_dasm_info_t *args)
 	do_snprintf_insn_snowhousecpu_maybe_pre (args));
     }
       break;
+    case SNOWHOUSECPU_OA_RA_RB_U16:
+    {
+      fpr (stream, "%s\t%s, %s, %i%s",
+	args->opc_info->name,
+	gprs[args->ra_idx].name,
+	gprs[args->rb_idx].name,
+	(unsigned) args->uimm,
+	do_snprintf_insn_snowhousecpu_maybe_pre (args));
+    }
+      break;
     case SNOWHOUSECPU_OA_RA_RB_SHIFT_U5:
     {
       if (args->length != 4)
@@ -265,19 +285,19 @@ do_print_insn_snowhousecpu (snowhousecpu_dasm_info_t *args)
 	  args->opc_info->name,
 	  gprs[args->ra_idx].name,
 	  gprs[args->rb_idx].name,
-	  (unsigned) args->simm);
+	  (unsigned) args->uimm);
       }
     }
       break;
-    case SNOWHOUSECPU_OA_RA_PCREL_S16:
-    {
-      fpr (stream, "%s\t%s, %i%s",
-	args->opc_info->name,
-	gprs[args->ra_idx].name,
-	(signed) args->simm,
-	do_snprintf_insn_snowhousecpu_maybe_pre (args));
-    }
-      break;
+    //case SNOWHOUSECPU_OA_RA_PCREL_S16:
+    //{
+    //  fpr (stream, "%s\t%s, %i%s",
+    //    args->opc_info->name,
+    //    gprs[args->ra_idx].name,
+    //    (signed) args->simm,
+    //    do_snprintf_insn_snowhousecpu_maybe_pre (args));
+    //}
+    //  break;
     case SNOWHOUSECPU_OA_RA_RB_PCREL_S16:
     {
       fpr (stream, "%s\t%s, %s, %i%s",
@@ -288,13 +308,22 @@ do_print_insn_snowhousecpu (snowhousecpu_dasm_info_t *args)
 	do_snprintf_insn_snowhousecpu_maybe_pre (args));
     }
       break;
-    case SNOWHOUSECPU_OA_PCREL_S16_IMPLICIT_LR:
+    case SNOWHOUSECPU_OA_RA_PCREL_S24:
+    {
+      fpr (stream, "%s\t%s, %i%s",
+	args->opc_info->name,
+	gprs[args->ra_idx].name,
+	(signed) args->simm24,
+	do_snprintf_insn_snowhousecpu_maybe_pre (args));
+    }
+      break;
+    case SNOWHOUSECPU_OA_PCREL_S24_IMPLICIT_LR:
     {
       fpr (stream, "%s\t%i%s",
 	args->opc_info->name,
 	//gprs[args->ra_idx].name,
 	//gprs[args->rb_idx].name,
-	(signed) args->simm,
+	(signed) args->simm24,
 	do_snprintf_insn_snowhousecpu_maybe_pre (args));
     }
       break;

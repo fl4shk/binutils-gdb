@@ -34,10 +34,12 @@ static const snowhousecpu_opc_info_t
   snowhousecpu_opc_info_sub_ra_rb_rc = SNOWHOUSECPU_OI_INST_SUB_RA_RB_RC,
   snowhousecpu_opc_info_sltu_ra_rb_rc = SNOWHOUSECPU_OI_INST_SLTU_RA_RB_RC,
   snowhousecpu_opc_info_slts_ra_rb_rc = SNOWHOUSECPU_OI_INST_SLTS_RA_RB_RC,
+  snowhousecpu_opc_info_sltu_ra_rb_imm16 = SNOWHOUSECPU_OI_INST_SLTU_RA_RB_IMM16,
+  snowhousecpu_opc_info_slts_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_SLTS_RA_RB_SIMM16,
   snowhousecpu_opc_info_xor_ra_rb_rc = SNOWHOUSECPU_OI_INST_XOR_RA_RB_RC,
-  snowhousecpu_opc_info_xor_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_XOR_RA_RB_SIMM16,
+  snowhousecpu_opc_info_xor_ra_rb_imm16 = SNOWHOUSECPU_OI_INST_XOR_RA_RB_IMM16,
   snowhousecpu_opc_info_or_ra_rb_rc = SNOWHOUSECPU_OI_INST_OR_RA_RB_RC,
-  snowhousecpu_opc_info_or_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_OR_RA_RB_SIMM16,
+  snowhousecpu_opc_info_or_ra_rb_imm16 = SNOWHOUSECPU_OI_INST_OR_RA_RB_IMM16,
 
   snowhousecpu_opc_info_and_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_AND_RA_RB_SIMM16,
   snowhousecpu_opc_info_lsl_ra_rb_rc = SNOWHOUSECPU_OI_INST_LSL_RA_RB_RC,
@@ -65,8 +67,8 @@ static const snowhousecpu_opc_info_t
   snowhousecpu_opc_info_sth_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_STH_RA_RB_SIMM16,
   snowhousecpu_opc_info_stb_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_STB_RA_RB_SIMM16,
   snowhousecpu_opc_info_beq_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BEQ_RA_RB_SIMM16,
-  snowhousecpu_opc_info_bl_ra_simm16 = SNOWHOUSECPU_OI_INST_BL_RA_SIMM16,
-  snowhousecpu_opc_info_bl_simm16 = SNOWHOUSECPU_OI_INST_BL_SIMM16,
+  //snowhousecpu_opc_info_bl_ra_simm16 = SNOWHOUSECPU_OI_INST_BL_RA_SIMM16,
+  //snowhousecpu_opc_info_bl_simm16 = SNOWHOUSECPU_OI_INST_BL_SIMM16,
   snowhousecpu_opc_info_bne_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BNE_RA_RB_SIMM16,
   snowhousecpu_opc_info_add_ra_pc_simm16 = SNOWHOUSECPU_OI_INST_ADD_RA_PC_SIMM16,
   snowhousecpu_opc_info_bltu_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BLTU_RA_RB_SIMM16,
@@ -79,6 +81,8 @@ static const snowhousecpu_opc_info_t
   snowhousecpu_opc_info_bles_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BLES_RA_RB_SIMM16,
   snowhousecpu_opc_info_jl_ra_rb = SNOWHOUSECPU_OI_INST_JL_RA_RB,
   snowhousecpu_opc_info_jmp_rb = SNOWHOUSECPU_OI_INST_JMP_RB,
+  snowhousecpu_opc_info_bl_ra_simm24 = SNOWHOUSECPU_OI_INST_BL_RA_SIMM24,
+  snowhousecpu_opc_info_bl_simm24 = SNOWHOUSECPU_OI_INST_BL_SIMM24,
   snowhousecpu_opc_info_pre_simm16 = SNOWHOUSECPU_OI_INST_PRE_SIMM16;
 
 #define SNOWHOUSECPU_OPC_ARRAY_SIZE(arr) \
@@ -147,11 +151,24 @@ static const size_t snowhousecpu_opc_info_slt_arr_size = (
 );
 //#define snowhousecpu_opc_info_slt_arr_size
 //  (snowhousecpu_opc_info_arr_size (snowhousecpu_opc_info_slt_arr))
+
+static const snowhousecpu_opc_info_t *
+snowhousecpu_opc_info_slt_imm_arr[] =
+{
+  &snowhousecpu_opc_info_sltu_ra_rb_imm16,
+  &snowhousecpu_opc_info_slts_ra_rb_simm16,
+  //NULL,
+};
+static const size_t snowhousecpu_opc_info_slt_imm_arr_size = (
+  SNOWHOUSECPU_OPC_ARRAY_SIZE (snowhousecpu_opc_info_slt_imm_arr)
+);
+//#define snowhousecpu_opc_info_slt_arr_size
+//  (snowhousecpu_opc_info_arr_size (snowhousecpu_opc_info_slt_arr))
 static const snowhousecpu_opc_info_t *
 snowhousecpu_opc_info_xor_arr[] =
 {
   &snowhousecpu_opc_info_xor_ra_rb_rc,
-  &snowhousecpu_opc_info_xor_ra_rb_simm16,
+  &snowhousecpu_opc_info_xor_ra_rb_imm16,
   //NULL,
 };
 static const size_t snowhousecpu_opc_info_xor_arr_size = (
@@ -163,7 +180,7 @@ static const snowhousecpu_opc_info_t *
 snowhousecpu_opc_info_or_arr[] =
 {
   &snowhousecpu_opc_info_or_ra_rb_rc,
-  &snowhousecpu_opc_info_or_ra_rb_simm16,
+  &snowhousecpu_opc_info_or_ra_rb_imm16,
   //NULL,
 };
 static const size_t snowhousecpu_opc_info_or_arr_size = (
@@ -242,8 +259,8 @@ static const snowhousecpu_opc_info_t *
 snowhousecpu_opc_info_branch_etc_arr[] =
 {
   &snowhousecpu_opc_info_beq_ra_rb_simm16,
-  &snowhousecpu_opc_info_bl_ra_simm16,
-  &snowhousecpu_opc_info_bl_simm16,
+  //&snowhousecpu_opc_info_bl_ra_simm16,
+  //&snowhousecpu_opc_info_bl_simm16,
   &snowhousecpu_opc_info_bne_ra_rb_simm16,
   &snowhousecpu_opc_info_add_ra_pc_simm16,
   &snowhousecpu_opc_info_bltu_ra_rb_simm16,
@@ -264,6 +281,19 @@ static const size_t snowhousecpu_opc_info_branch_etc_arr_size = (
   SNOWHOUSECPU_OPC_ARRAY_SIZE (snowhousecpu_opc_info_branch_etc_arr)
 );
 static const snowhousecpu_opc_info_t *
+snowhousecpu_opc_info_bl_arr[] =
+{
+  &snowhousecpu_opc_info_bl_ra_simm24,
+  &snowhousecpu_opc_info_bl_simm24,
+  //NULL,
+};
+//#define snowhousecpu_opc_info_bl_arr_size
+//  (snowhousecpu_opc_info_arr_size (snowhousecpu_opc_info_bl_arr))
+static const size_t snowhousecpu_opc_info_bl_arr_size = (
+  SNOWHOUSECPU_OPC_ARRAY_SIZE (snowhousecpu_opc_info_bl_arr)
+);
+
+static const snowhousecpu_opc_info_t *
 snowhousecpu_opc_info_pre_arr[] =
 {
   &snowhousecpu_opc_info_pre_simm16,
@@ -282,6 +312,7 @@ snowhousecpu_opc_info_a2d[] =
   snowhousecpu_opc_info_add_arr,
   snowhousecpu_opc_info_sub_arr,
   snowhousecpu_opc_info_slt_arr,
+  snowhousecpu_opc_info_slt_imm_arr,
   snowhousecpu_opc_info_xor_arr,
   snowhousecpu_opc_info_or_arr,
   snowhousecpu_opc_info_and_simm16_arr,
@@ -289,6 +320,7 @@ snowhousecpu_opc_info_a2d[] =
   snowhousecpu_opc_info_multi_cycle_arr,
   snowhousecpu_opc_info_ldst_arr,
   snowhousecpu_opc_info_branch_etc_arr,
+  snowhousecpu_opc_info_bl_arr,
   snowhousecpu_opc_info_pre_arr,
   //NULL,
 };
@@ -298,6 +330,7 @@ snowhousecpu_opc_info_size_arr[] =
   snowhousecpu_opc_info_add_arr_size,
   snowhousecpu_opc_info_sub_arr_size,
   snowhousecpu_opc_info_slt_arr_size,
+  snowhousecpu_opc_info_slt_imm_arr_size,
   snowhousecpu_opc_info_xor_arr_size,
   snowhousecpu_opc_info_or_arr_size,
   snowhousecpu_opc_info_and_simm16_arr_size,
@@ -305,6 +338,7 @@ snowhousecpu_opc_info_size_arr[] =
   snowhousecpu_opc_info_multi_cycle_arr_size,
   snowhousecpu_opc_info_ldst_arr_size,
   snowhousecpu_opc_info_branch_etc_arr_size,
+  snowhousecpu_opc_info_bl_arr_size,
   snowhousecpu_opc_info_pre_arr_size,
 };
 
