@@ -69,7 +69,8 @@ snowhousecpu_dasm_info_do_disassemble_worker (snowhousecpu_dasm_info_t *self)
     //  "self->op: %u\n",
     //  (unsigned) self->op
     //);
-    const snowhousecpu_opc_info_t *opc_info = snowhousecpu_opc_info_a2d[self->op][0];
+    //const snowhousecpu_opc_info_t *opc_info = snowhousecpu_opc_info_a2d[self->op][0];
+    const snowhousecpu_opc_info_t *opc_info = NULL;
     //if (self->op != snowhousecpu_opc_info_beq_ra_rb_simm16.op)
     //const snowhousecpu_opc_info_t **opc_info = NULL;
     unsigned count = 0;
@@ -80,7 +81,13 @@ snowhousecpu_dasm_info_do_disassemble_worker (snowhousecpu_dasm_info_t *self)
       ++count
     )
     {
+      //fprintf (
+      //  stderr,
+      //  "count, size: %u %u\n",
+      //  count, (unsigned)snowhousecpu_opc_info_size_arr[self->op]
+      //);
       opc_info = snowhousecpu_opc_info_a2d[self->op][count];
+
       //const snowhousecpu_opc_info_t *opc_info = *opc_info_arr;
       bool finished = false;
       switch (opc_info->subop.kind)
@@ -169,10 +176,18 @@ snowhousecpu_dasm_info_do_disassemble_worker (snowhousecpu_dasm_info_t *self)
     }
     if (self->opc_info == NULL)
     {
+      //fprintf (
+      //  stderr,
+      //  "self->opc_info == NULL\n"
+      //);
       self->is_bad = true;
     }
     else
     {
+      //fprintf (
+      //  stderr,
+      //  "self->opc_info != NULL\n"
+      //);
       switch (snowhousecpu_get_imm_kind(self->opc_info))
       {
 	case SNOWHOUSECPU_IMM_KIND_NONE:

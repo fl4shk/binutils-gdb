@@ -105,15 +105,18 @@ snowhousecpu_dasm_info_do_disassemble (snowhousecpu_dasm_info_t *self)
   }
 
   snowhousecpu_dasm_info_do_disassemble_worker (self);
-  switch (snowhousecpu_get_imm_kind (self->opc_info))
+  if (self->opc_info != NULL)
   {
-    case SNOWHOUSECPU_IMM_KIND_PCREL_S16:
-    case SNOWHOUSECPU_IMM_KIND_PCREL_S24:
-      self->simm <<= 2;
-      self->simm24 <<= 2;
-      break;
-    default:
-      break;
+    switch (snowhousecpu_get_imm_kind (self->opc_info))
+    {
+      case SNOWHOUSECPU_IMM_KIND_PCREL_S16:
+      case SNOWHOUSECPU_IMM_KIND_PCREL_S24:
+        self->simm <<= 2;
+        self->simm24 <<= 2;
+        break;
+      default:
+        break;
+    }
   }
 }
 
