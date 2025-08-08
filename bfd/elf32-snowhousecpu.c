@@ -1930,9 +1930,28 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
           //    //- 2ull
           //    - insn_dist
           //  );
-          snowhousecpu_set_insn_field_p (
-	    SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, (simm - insn_dist)
-          );
+          if (args->target_bitsize == 18)
+          {
+	    //fprintf (
+	    //  stderr,
+	    //  "pcrel relax simm18: %lx\n",
+	    //  simm - insn_dist
+	    //);
+	    snowhousecpu_set_insn_field_p (
+	      SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, (simm - insn_dist) >> 2
+	    );
+	  }
+	  else
+	  {
+	    //fprintf (
+	    //  stderr,
+	    //  "pcrel relax simm26: %lx\n",
+	    //  simm - insn_dist
+	    //);
+	    snowhousecpu_set_insn_field_p (
+	      SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, &insn, (simm - insn_dist) >> 2
+	    );
+	  }
         }
 
       bfd_put_32 (args->abfd, insn,
@@ -2118,9 +2137,9 @@ snowhousecpu_do_relax_prefix (bfd *abfd,
 
 
     //printf ("snowhousecpu partial relax: have howto: "
-    //  "0x%x 0x%x; %d; %d %d; %d %d\n",
+    //  //"0x%x 0x%x; %d; %d %d; %d %d\n",
+    //  "0x%x 0x%x; %d %d; %d %d\n",
     //  (unsigned) value, (unsigned) gap,
-    //  (unsigned) was_lpre,
     //  (unsigned) prefix_insn_bitsize, (unsigned) insn_bitsize,
     //  (unsigned) target_bitsize, (unsigned) curr_bitsize);
 
