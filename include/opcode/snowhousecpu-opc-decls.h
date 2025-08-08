@@ -37,7 +37,7 @@ static const snowhousecpu_opc_info_t
   snowhousecpu_opc_info_sltu_ra_rb_imm16 = SNOWHOUSECPU_OI_INST_SLTU_RA_RB_IMM16,
   snowhousecpu_opc_info_slts_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_SLTS_RA_RB_SIMM16,
   snowhousecpu_opc_info_xor_ra_rb_rc = SNOWHOUSECPU_OI_INST_XOR_RA_RB_RC,
-  snowhousecpu_opc_info_xor_ra_rb_imm16 = SNOWHOUSECPU_OI_INST_XOR_RA_RB_IMM16,
+  snowhousecpu_opc_info_xor_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_XOR_RA_RB_SIMM16,
   snowhousecpu_opc_info_or_ra_rb_rc = SNOWHOUSECPU_OI_INST_OR_RA_RB_RC,
   snowhousecpu_opc_info_or_ra_rb_imm16 = SNOWHOUSECPU_OI_INST_OR_RA_RB_IMM16,
 
@@ -168,7 +168,7 @@ static const snowhousecpu_opc_info_t *
 snowhousecpu_opc_info_xor_arr[] =
 {
   &snowhousecpu_opc_info_xor_ra_rb_rc,
-  &snowhousecpu_opc_info_xor_ra_rb_imm16,
+  &snowhousecpu_opc_info_xor_ra_rb_simm16,
   //NULL,
 };
 static const size_t snowhousecpu_opc_info_xor_arr_size = (
