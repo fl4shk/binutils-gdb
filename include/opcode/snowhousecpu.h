@@ -553,6 +553,11 @@ typedef struct snowhousecpu_opc_info_t {
 #define SNOWHOUSECPU_OI_INST_PRE_SIMM16 \
   {"pre", SNOWHOUSECPU_OA_PRE_S16, 12ull, {0ull, SNOWHOUSECPU_SOK_NONE, 0ull}}
 
+#define SNOWHOUSECPU_OI_INST_LL_RA_RB_RC \
+  {"ll", SNOWHOUSECPU_OA_RA_RB, 13ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 0ull}}
+#define SNOWHOUSECPU_OI_INST_SC_RA_RB_RC \
+  {"sc", SNOWHOUSECPU_OA_RA_RB_RC, 13ull, {0ull, SNOWHOUSECPU_SOK_RC_IDX_FULL, 1ull}}
+
 
 
 //static inline bool

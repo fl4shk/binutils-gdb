@@ -162,7 +162,7 @@ snowhousecpu_dasm_info_do_disassemble_worker (snowhousecpu_dasm_info_t *self)
         self->opc_info = opc_info;
         if (opc_info->oparg == SNOWHOUSECPU_OA_RA_RB_SHIFT_U5)
         {
-          self->simm = temp_shift_imm5;
+          self->uimm = temp_shift_imm5;
         }
         //fprintf (
 	//  stderr,

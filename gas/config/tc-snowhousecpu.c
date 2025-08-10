@@ -1931,7 +1931,7 @@ md_begin (void)
 }
 
 /* Blindly copied from "tc-riscv.c" */
-/* Because the value of .cfi_remember_state may changed after relaxation,
+/* Because the value of .cfi_remember_state may change after relaxation,
    we insert a fix to relocate it again in link-time.  */
 void
 snowhousecpu_pre_output_hook (void)
