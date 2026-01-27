@@ -83,7 +83,17 @@ static const snowhousecpu_opc_info_t
   snowhousecpu_opc_info_jmp_rb = SNOWHOUSECPU_OI_INST_JMP_RB,
   snowhousecpu_opc_info_bl_ra_simm24 = SNOWHOUSECPU_OI_INST_BL_RA_SIMM24,
   snowhousecpu_opc_info_bl_simm24 = SNOWHOUSECPU_OI_INST_BL_SIMM24,
-  snowhousecpu_opc_info_pre_simm16 = SNOWHOUSECPU_OI_INST_PRE_SIMM16;
+  snowhousecpu_opc_info_pre_simm16 = SNOWHOUSECPU_OI_INST_PRE_SIMM16,
+  snowhousecpu_opc_info_llr_ra_rb = SNOWHOUSECPU_OI_INST_LLR_RA_RB,
+  snowhousecpu_opc_info_scr_ra_rb_rc = SNOWHOUSECPU_OI_INST_SCR_RA_RB_RC,
+  snowhousecpu_opc_info_lluh_ra_rb = SNOWHOUSECPU_OI_INST_LLUH_RA_RB,
+  snowhousecpu_opc_info_llsh_ra_rb = SNOWHOUSECPU_OI_INST_LLSH_RA_RB,
+  snowhousecpu_opc_info_llub_ra_rb = SNOWHOUSECPU_OI_INST_LLUB_RA_RB,
+  snowhousecpu_opc_info_llsb_ra_rb = SNOWHOUSECPU_OI_INST_LLSB_RA_RB,
+  snowhousecpu_opc_info_sch_ra_rb_rc = SNOWHOUSECPU_OI_INST_SCH_RA_RB_RC,
+  snowhousecpu_opc_info_scb_ra_rb_rc = SNOWHOUSECPU_OI_INST_SCB_RA_RB_RC,
+  snowhousecpu_opc_info_llp_lo_ra_rb = SNOWHOUSECPU_OI_INST_LLP_LO_RA_RB,
+  snowhousecpu_opc_info_scp_lo_ra_rb_rc = SNOWHOUSECPU_OI_INST_SCP_LO_RA_RB_RC;
 
 #define SNOWHOUSECPU_OPC_ARRAY_SIZE(arr) \
   ((sizeof (arr) / sizeof (arr[0])))
@@ -305,6 +315,23 @@ static const size_t snowhousecpu_opc_info_pre_arr_size = (
   SNOWHOUSECPU_OPC_ARRAY_SIZE (snowhousecpu_opc_info_pre_arr)
 );
 
+static const snowhousecpu_opc_info_t *
+snowhousecpu_opc_info_ll_sc_arr[] = {
+  &snowhousecpu_opc_info_llr_ra_rb,
+  &snowhousecpu_opc_info_scr_ra_rb_rc,
+  &snowhousecpu_opc_info_lluh_ra_rb,
+  &snowhousecpu_opc_info_llsh_ra_rb,
+  &snowhousecpu_opc_info_llub_ra_rb,
+  &snowhousecpu_opc_info_llsb_ra_rb,
+  &snowhousecpu_opc_info_sch_ra_rb_rc,
+  &snowhousecpu_opc_info_scb_ra_rb_rc,
+  &snowhousecpu_opc_info_llp_lo_ra_rb,
+  &snowhousecpu_opc_info_scp_lo_ra_rb_rc,
+};
+static const size_t snowhousecpu_opc_info_ll_sc_arr_size = (
+  SNOWHOUSECPU_OPC_ARRAY_SIZE (snowhousecpu_opc_info_ll_sc_arr)
+);
+
 // indexed by the opcode!
 static const snowhousecpu_opc_info_t **
 snowhousecpu_opc_info_a2d[] =
@@ -322,6 +349,7 @@ snowhousecpu_opc_info_a2d[] =
   snowhousecpu_opc_info_branch_etc_arr,
   snowhousecpu_opc_info_bl_arr,
   snowhousecpu_opc_info_pre_arr,
+  snowhousecpu_opc_info_ll_sc_arr,
   //NULL,
 };
 static const size_t
@@ -340,6 +368,7 @@ snowhousecpu_opc_info_size_arr[] =
   snowhousecpu_opc_info_branch_etc_arr_size,
   snowhousecpu_opc_info_bl_arr_size,
   snowhousecpu_opc_info_pre_arr_size,
+  snowhousecpu_opc_info_ll_sc_arr_size,
 };
 
 //#define snowhousecpu_opc_info_a2d_size

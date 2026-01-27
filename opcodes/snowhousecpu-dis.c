@@ -420,6 +420,45 @@ do_print_insn_snowhousecpu (snowhousecpu_dasm_info_t *args)
       }
     }
       break;
+    case SNOWHOUSECPU_OA_LO_RA_RB:
+    {
+      if (args->length != 4)
+      {
+        fpr (stream, "%s%x%s",
+          "bad (op 0x",
+          (unsigned) args->op,
+          "; `SNOWHOUSECPU_OA_LO_RA_RB`; `pre`)");
+      }
+      else
+      {
+	fpr (stream, "%s\t%s, %s, %s",
+	  args->opc_info->name,
+	  sprs[SNOWHOUSECPU_SPR_ENUM_LO].name,
+	  gprs[args->ra_idx].name,
+	  gprs[args->rb_idx].name);
+      }
+    }
+      break;
+    case SNOWHOUSECPU_OA_LO_RA_RB_RC:
+    {
+      if (args->length != 4)
+      {
+        fpr (stream, "%s%x%s",
+          "bad (op 0x",
+          (unsigned) args->op,
+          "; `SNOWHOUSECPU_OA_LO_RA_RB_RC`; `pre`)");
+      }
+      else
+      {
+	fpr (stream, "%s\t%s, %s, %s, %s",
+	  args->opc_info->name,
+	  sprs[SNOWHOUSECPU_SPR_ENUM_LO].name,
+	  gprs[args->ra_idx].name,
+	  gprs[args->rb_idx].name,
+	  gprs[args->rc_idx].name);
+      }
+    }
+      break;
     default:
       //fpr (stream, "bad (grp 0x%x; oparg 0x%x; opcode 0x%x; name %s)",
       //  (unsigned) args->grp, (unsigned) args->opc_info->oparg,

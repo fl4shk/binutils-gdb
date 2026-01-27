@@ -1,5 +1,6 @@
 SCRIPT_NAME=snowhousecpu
 TEMPLATE_NAME=elf
+EXTRA_EM_FILE=snowhousecpuelf
 OUTPUT_FORMAT="elf32-snowhousecpu"
 LITTLE_OUTPUT_FORMAT="elf32-snowhousecpu"
 #TEXT_START_ADDR=0x1000

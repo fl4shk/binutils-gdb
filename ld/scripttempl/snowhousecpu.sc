@@ -28,7 +28,7 @@ MEMORY
 {
   /* rom (rx) : */
   /* ram (w!rx) : ORIGIN = 0x0000, LENGTH = 0x4000000 */
-  ram (w!rx) : ORIGIN = 0x0000, LENGTH = 0x2000000
+  ram (w!rx) : ORIGIN = 0x0000, LENGTH = 0x1000000
   far_ram_0 (w!rx) : ORIGIN = 0x1000000, LENGTH = 0x1000
   far_ram_1 (w!rx) : ORIGIN = 0x2000000, LENGTH = 0x1000
   farthest_ram (w!rx) : ORIGIN = 0xfe000004, LENGTH = 0x8000
@@ -38,9 +38,9 @@ SECTIONS
 {
   .text :
   {
-    ${RELOCATING+KEEP (*(SORT_NONE(.init)))
+    ${RELOCATING+KEEP (*(SORT_NONE(.init_array)))
     *(.text)
-    KEEP (*(SORT_NONE(.fini)))
+    KEEP (*(SORT_NONE(.fini_array)))
     *(.strings)
     _etext = . ; }
   } ${RELOCATING+ > ram}

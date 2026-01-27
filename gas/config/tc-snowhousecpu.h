@@ -197,6 +197,11 @@ snowhousecpu_regname_to_dw2regnum (char *name);
 extern void
 snowhousecpu_cfi_frame_initial_instructions (void);
 
+#define md_parse_name(name, exp, mode, c) \
+  snowhousecpu_parse_name(name)
+extern bool
+snowhousecpu_parse_name (const char *name);
+
 //extern const relax_typeS md_relax_table[];
 //#define TC_GENERIC_RELAX_TABLE md_relax_table
 

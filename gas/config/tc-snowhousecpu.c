@@ -33,6 +33,8 @@
 #include <stdint.h>
 #include <string.h>
 
+static bool good_exp_parse = false;
+
 /* This array holds the chars that always start a comment.  If the
   pre-processor is disabled, these aren't very useful.  */
 const char comment_chars[]        = "//";
@@ -460,6 +462,7 @@ typedef struct snowhousecpu_parse_data_t
     simm,
     fwl;
   const snowhousecpu_reg_t
+    //*temp_reg_arr[2],
     *reg_a,
     *reg_b,
     *reg_c;
@@ -1086,12 +1089,13 @@ md_pcrel_from (fixS *fixP ATTRIBUTE_UNUSED)
 static inline bool
 snowhousecpu_relaxable_symbol (symbolS *sym)
 {
-  return (
+  const bool ret = (
     sym != NULL
     && S_IS_DEFINED (sym)
     //&& !S_IS_EXTERNAL (sym)
-    && !S_IS_WEAK (sym)
+    //&& !S_IS_WEAK (sym)
   );
+  return ret;
 }
 
 
@@ -1791,6 +1795,14 @@ md_begin (void)
       //snowhousecpu_opci_v2d_and_index_hash_append (opc_info, true, 0);
     }
   }
+  for (count=0, opc_info=snowhousecpu_opc_info_ll_sc_arr;
+    count++<snowhousecpu_opc_info_ll_sc_arr_size;
+    //opc_info!=NULL;
+    ++opc_info)
+  {
+    snowhousecpu_opci_v2d_and_index_hash_append (*opc_info/*,*/ /*false,*/ /*0*/);
+    //snowhousecpu_opci_v2d_and_index_hash_append (opc_info, true, 0);
+  }
 
 
   //for (count=0, opc_info=snowhousecpu_opc_info_g0;
@@ -2137,39 +2149,46 @@ snowhousecpu_relax_insn_ctor (snowhousecpu_relax_insn_t *self,
           self->prefix_insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE - 2;
           self->insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE + 2; // right shift of 2
           self->target_bitsize = self->insn_bitsize;
+          self->curr_bitsize = (
+            self->prefix_insn_bitsize + self->insn_bitsize
+          );
           break;
         case SNOWHOUSECPU_IMM_KIND_PCREL_S24:
           self->prefix_insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE - 2;
           self->insn_bitsize = SNOWHOUSECPU_SIMM24_BITSIZE + 2; // right shift of 2
           self->target_bitsize = self->insn_bitsize;
+          self->curr_bitsize = 32;
           break;
         default:
           self->prefix_insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE;
           self->insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE;
           self->target_bitsize = self->insn_bitsize;
-          break;
-      }
-      switch (self->imm_kind)
-      {
-        case SNOWHOUSECPU_IMM_KIND_S16:
-        case SNOWHOUSECPU_IMM_KIND_PCREL_S16:
-        case SNOWHOUSECPU_IMM_KIND_PCREL_S24:
-          self->imm_is_signed = true;
-          break;
-        case SNOWHOUSECPU_IMM_KIND_NONE:
-        case SNOWHOUSECPU_IMM_KIND_U16:
-        case SNOWHOUSECPU_IMM_KIND_PRE_S16:
-        case SNOWHOUSECPU_IMM_KIND_SHIFT_U5:
-          self->imm_is_signed = false;
+          self->curr_bitsize = (
+            self->prefix_insn_bitsize + self->insn_bitsize
+          );
           break;
       }
     }
       break;
   }
+  switch (self->imm_kind)
+  {
+    case SNOWHOUSECPU_IMM_KIND_S16:
+    case SNOWHOUSECPU_IMM_KIND_PCREL_S16:
+    case SNOWHOUSECPU_IMM_KIND_PCREL_S24:
+      self->imm_is_signed = true;
+      break;
+    case SNOWHOUSECPU_IMM_KIND_NONE:
+    case SNOWHOUSECPU_IMM_KIND_U16:
+    case SNOWHOUSECPU_IMM_KIND_PRE_S16:
+    case SNOWHOUSECPU_IMM_KIND_SHIFT_U5:
+      self->imm_is_signed = false;
+      break;
+  }
 
-  self->curr_bitsize = (
-    self->prefix_insn_bitsize + self->insn_bitsize
-  );
+  //self->curr_bitsize = (
+  //  self->prefix_insn_bitsize + self->insn_bitsize
+  //);
 }
 static void
 snowhousecpu_relax_temp_ctor (snowhousecpu_relax_temp_t *self,
@@ -2235,7 +2254,7 @@ snowhousecpu_relax_temp_ctor (snowhousecpu_relax_temp_t *self,
       //&& S_IS_COMMON (fragP->fr_symbol)
       //&& S_IS_FORWARD_REF (fragP->fr_symbol)
       //&& !S_IS_EXTERNAL (fragP->fr_symbol)
-      && !S_IS_WEAK (fragP->fr_symbol)
+      //&& !S_IS_WEAK (fragP->fr_symbol)
       //snowhousecpu_relaxable_symbol (fragP->fr_symbol)
       && sec == S_GET_SEGMENT (fragP->fr_symbol)
     )
@@ -2303,7 +2322,8 @@ snowhousecpu_relax_temp_ctor (snowhousecpu_relax_temp_t *self,
       //shrink_two_units_dist = have_pre_distance
       //  (SNOWHOUSECPU_HAVE_PLP_LPRE, SNOWHOUSECPU_HAVE_PRE_NONE);
 
-    if (relax_can_shrink_value
+    const bool my_relax_can_shrink_value = (
+      relax_can_shrink_value
       (
         !relax_insn->is_pcrel
         ? self->value
@@ -2315,7 +2335,14 @@ snowhousecpu_relax_temp_ctor (snowhousecpu_relax_temp_t *self,
       relax_insn->target_bitsize,
       relax_insn->imm_is_signed
       /*(!relax_insn->was_lpre && cl_insn->is_small_imm_unsigned)*/)
-    )
+    );
+    //printf(
+    //  "debug: can_shrink:%x curr_bitsize:%lu target_bitsize:%lu values:(%lx %lx)\n",
+    //  my_relax_can_shrink_value, relax_insn->curr_bitsize,
+    //  relax_insn->target_bitsize, self->value, self->value - shrink_one_unit_dist
+    //);
+
+    if (my_relax_can_shrink_value)
     {
       self->rm_prefix = true;
       if (relax_insn->is_pcrel)
@@ -3265,7 +3292,9 @@ md_assemble (char *str)
   do \
   { \
     op_end = clear_and_parse_exp_save_ilp (op_end, &pd.some_ex); \
-    if (pd.some_ex.X_op == O_illegal || pd.some_ex.X_op == O_absent) \
+    if ( \
+      !good_exp_parse || pd.some_ex.X_op == O_illegal || pd.some_ex.X_op == O_absent \
+    ) \
     { \
       goto post_oa_switch; \
     } \
@@ -3350,6 +3379,7 @@ md_assemble (char *str)
     //      SNOWHOUSECPU_OPC_INFO_NAME_MAX_LEN) == 0
     //  )
     //);
+    good_exp_parse = true;
 
     switch (pd.opc_info->oparg)
     {
@@ -3559,6 +3589,36 @@ md_assemble (char *str)
         SNOWHOUSECPU_SKIP_ISSPACE ();
         SNOWHOUSECPU_PARSE_EXP ();
         //pd.have_imm = true;
+        pd.parse_good = true;
+        break;
+      case SNOWHOUSECPU_OA_LO_RA_RB:
+        SNOWHOUSECPU_SKIP_ISSPACE ();
+        SNOWHOUSECPU_PARSE_SPR (reg_a);
+        if (pd.reg_a->index != SNOWHOUSECPU_SPR_ENUM_LO)
+        {
+          goto post_oa_switch;
+        }
+        pd.reg_a = NULL;
+        SNOWHOUSECPU_PARSE_COMMA ();
+        SNOWHOUSECPU_PARSE_GPR (reg_a);
+        SNOWHOUSECPU_PARSE_COMMA ();
+        SNOWHOUSECPU_PARSE_GPR (reg_b);
+        pd.parse_good = true;
+        break;
+      case SNOWHOUSECPU_OA_LO_RA_RB_RC:
+        SNOWHOUSECPU_SKIP_ISSPACE ();
+        SNOWHOUSECPU_PARSE_SPR (reg_a);
+        if (pd.reg_a->index != SNOWHOUSECPU_SPR_ENUM_LO)
+        {
+          goto post_oa_switch;
+        }
+        pd.reg_a = NULL;
+        SNOWHOUSECPU_PARSE_COMMA ();
+        SNOWHOUSECPU_PARSE_GPR (reg_a);
+        SNOWHOUSECPU_PARSE_COMMA ();
+        SNOWHOUSECPU_PARSE_GPR (reg_b);
+        SNOWHOUSECPU_PARSE_COMMA ();
+        SNOWHOUSECPU_PARSE_GPR (reg_c);
         pd.parse_good = true;
         break;
       default:
@@ -3868,6 +3928,18 @@ tc_gen_reloc (asection *section ATTRIBUTE_UNUSED, fixS *fixP)
   }
 
   return reloc;
+}
+
+bool snowhousecpu_parse_name (const char *name)
+{
+  const snowhousecpu_reg_t *reg = snowhousecpu_reg_lookup (name);
+  if (reg != NULL)
+  {
+    good_exp_parse = false;
+    return true;
+  }
+  good_exp_parse = true;
+  return false;
 }
 
 /* Round up section size.  */

@@ -963,8 +963,7 @@ snowhousecpu_elf_do_non_add_sub_imm_reloc (bfd *input_bfd,
       }
       else
       {
-	//fprintf (
-	//  stderr,
+	//printf (
 	//  "simm24: relocation: %lx\n",
 	//  relocation
 	//);
@@ -997,8 +996,7 @@ snowhousecpu_elf_do_non_add_sub_imm_reloc (bfd *input_bfd,
       if (
 	howto->type == R_SNOWHOUSECPU_S32_FOR_S24_PCREL
       ) {
-	//fprintf (
-	//  stderr,
+	//printf (
 	//  "s32 for simm24: relocation: %lx\n",
 	//  relocation
 	//);
@@ -1479,8 +1477,8 @@ snowhousecpu_elf_relocate_section (bfd *output_bfd,
         //  break;
 
         default:
-          printf ("relocate_section default howto name: %s\n",
-            howto->name);
+          //printf ("relocate_section default howto name: %s\n",
+          //  howto->name);
           BFD_ASSERT (0);
           break;
       }
@@ -1932,8 +1930,7 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
           //  );
           if (args->target_bitsize == 18)
           {
-	    //fprintf (
-	    //  stderr,
+	    //printf (
 	    //  "pcrel relax simm18: %lx\n",
 	    //  simm - insn_dist
 	    //);
@@ -1943,8 +1940,7 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
 	  }
 	  else
 	  {
-	    //fprintf (
-	    //  stderr,
+	    //printf (
 	    //  "pcrel relax simm26: %lx\n",
 	    //  simm - insn_dist
 	    //);
@@ -1983,24 +1979,50 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
       //);
       return false;
     }
-    args->irel->r_info
-      = ELF32_R_INFO (ELF32_R_SYM (args->irel->r_info),
-        //!args->is_pcrel
-        //? (
-        //  !args->is_g7_icreload
-        //  ? (
-        //    !args->is_small_imm_unsigned
-        //    ? R_SNOWHOUSECPU_G1_S5
-        //    : R_SNOWHOUSECPU_G1_U5
-        //  ) : R_SNOWHOUSECPU_G7_ICRELOAD_S5
-        //) : R_SNOWHOUSECPU_G3_S9_PCREL);
-        //snowhousecpu_relax_reloc_lookup
-        //  (args->is_pcrel, args->is_g5_index, args->is_g7_icreload,
-        //  args->is_small_imm_unsigned)->small.r_type);
-        !args->is_pcrel
-        ? R_SNOWHOUSECPU_S16
-        : R_SNOWHOUSECPU_S16_PCREL
-      );
+
+    enum elf_snowhousecpu_reloc_type temp_reloc_type = R_SNOWHOUSECPU_NONE;
+    switch (snowhousecpu_howto_to_imm_kind (args->howto))
+    {
+      case SNOWHOUSECPU_IMM_KIND_NONE:
+      case SNOWHOUSECPU_IMM_KIND_PRE_S16:
+      case SNOWHOUSECPU_IMM_KIND_SHIFT_U5:
+	break;
+      case SNOWHOUSECPU_IMM_KIND_S16:
+	temp_reloc_type = R_SNOWHOUSECPU_S16;
+	break;
+      case SNOWHOUSECPU_IMM_KIND_U16:
+	temp_reloc_type = R_SNOWHOUSECPU_U16;
+	break;
+      case SNOWHOUSECPU_IMM_KIND_PCREL_S16:
+	temp_reloc_type = R_SNOWHOUSECPU_S16_PCREL;
+	break;
+      case SNOWHOUSECPU_IMM_KIND_PCREL_S24:
+	temp_reloc_type = R_SNOWHOUSECPU_S24_PCREL;
+	break;
+    }
+
+    if (temp_reloc_type != R_SNOWHOUSECPU_NONE) {
+      args->irel->r_info
+	= ELF32_R_INFO (ELF32_R_SYM (args->irel->r_info),
+	  //!args->is_pcrel
+	  //? (
+	  //  !args->is_g7_icreload
+	  //  ? (
+	  //    !args->is_small_imm_unsigned
+	  //    ? R_SNOWHOUSECPU_G1_S5
+	  //    : R_SNOWHOUSECPU_G1_U5
+	  //  ) : R_SNOWHOUSECPU_G7_ICRELOAD_S5
+	  //) : R_SNOWHOUSECPU_G3_S9_PCREL);
+	  //snowhousecpu_relax_reloc_lookup
+	  //  (args->is_pcrel, args->is_g5_index, args->is_g7_icreload,
+	  //  args->is_small_imm_unsigned)->small.r_type);
+
+	  //!args->is_pcrel
+	  //? R_SNOWHOUSECPU_S16
+	  //: R_SNOWHOUSECPU_S16_PCREL
+	  temp_reloc_type
+	);
+      }
   }
 
   return true;
@@ -2096,6 +2118,13 @@ snowhousecpu_do_relax_prefix (bfd *abfd,
     gap = value - dot
       //+ 4;
       ;
+    //if ((gap & 0xffffull) == 0x911c)
+    //{
+    //  printf(
+    //    "debug relax test: %lx\n",
+    //    gap
+    //  );
+    //}
 
     if (howto->type == R_SNOWHOUSECPU_S32_FOR_S16)
     {
@@ -2126,13 +2155,17 @@ snowhousecpu_do_relax_prefix (bfd *abfd,
       prefix_insn_bitsize = SNOWHOUSECPU_IMM16_BITSIZE - 2;
       insn_bitsize = SNOWHOUSECPU_SIMM24_BITSIZE + 2; // right shift of 2
       target_bitsize = insn_bitsize;
-      //curr_bitsize = 32;
+      curr_bitsize = 32;
     }
     else
     {
       BFD_ASSERT (0);
     }
-    curr_bitsize = prefix_insn_bitsize + insn_bitsize;
+
+    if (howto->type != R_SNOWHOUSECPU_S32_FOR_S24_PCREL)
+    {
+      curr_bitsize = prefix_insn_bitsize + insn_bitsize;
+    }
 
 
 
@@ -2143,7 +2176,8 @@ snowhousecpu_do_relax_prefix (bfd *abfd,
     //  (unsigned) prefix_insn_bitsize, (unsigned) insn_bitsize,
     //  (unsigned) target_bitsize, (unsigned) curr_bitsize);
 
-    if (relax_can_shrink_value
+    const bool my_relax_can_shrink_value = (
+      relax_can_shrink_value
       (!howto->pc_relative
         ? value
         : (gap - shrink_one_unit_dist) /*>> 2*/,
@@ -2156,7 +2190,17 @@ snowhousecpu_do_relax_prefix (bfd *abfd,
       //  is_small_imm_unsigned
       //)
       )
-    )
+    );
+
+    if (howto->type == R_SNOWHOUSECPU_S32_FOR_S24_PCREL)
+    {
+      //printf(
+      //  "debug: can_shrink:%x curr_bitsize:%lu target_bitsize:%lu gap:%lx\n",
+      //  my_relax_can_shrink_value, curr_bitsize, target_bitsize, gap
+      //);
+    }
+
+    if (my_relax_can_shrink_value)
     {
       //printf ("snowhousecpu partial relax: can shrink 0\n");
       //fprintf (
@@ -2225,11 +2269,21 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
   Elf_Internal_Rela *irelend;
   bfd_byte *contents = NULL;
   Elf_Internal_Sym *isymbuf = NULL;
+  //const char *name = NULL;
+
   /* -------- */
   /* Assume nothing changes.  */
   *again = false;
   /* -------- */
-  /* We don't have to do anything for a relocatable link, if
+  //if (bfd_link_relocatable (link_info))
+  //{
+  //  fprintf (
+  //    stderr,
+  //    "_snowhousecpu_elf_relax_section(): relocatable link: %s\n",
+  //    sec->name
+  //  );
+  //}
+  /* We don't have to do anything for a relocatable link, or if
      this section does not have relocs. */
   if (bfd_link_relocatable (link_info)
       || sec->reloc_count == 0
@@ -2238,7 +2292,18 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
       || (sec->flags & SEC_CODE) == 0
     )
   {
+    //printf (
+    //  "_snowhousecpu_elf_relax_section(): don't have to do anything: %s\n",
+    //  sec->name
+    //);
     return true;
+  }
+  else
+  {
+    //printf (
+    //  "_snowhousecpu_elf_relax_section(): Here is the current sec->name: %s\n",
+    //  sec->name
+    //);
   }
   /* -------- */
   symtab_hdr = & elf_tdata (abfd)->symtab_hdr;
@@ -2248,6 +2313,9 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
                                                link_info->keep_memory);
   if (internal_relocs == NULL)
   {
+    //printf(
+    //  "internal_relocs == NULL\n"
+    //);
     goto error_return;
   }
   /* -------- */
@@ -2268,7 +2336,10 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
       }
       else if (!bfd_malloc_and_get_section (abfd, sec, &contents))
       {
-        /* Go get them off disck. */
+        /* Go get them off disk. */
+        //printf(
+	//  "go get them off disk.\n"
+        //);
         goto error_return;
       }
     }
@@ -2285,6 +2356,9 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
       }
       if (isymbuf == NULL)
       {
+        //printf(
+	//  "isymbuf == NULL\n"
+        //);
         goto error_return;
       }
     }
@@ -2319,6 +2393,25 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
       }
       symval = (isym->st_value
                 + sym_sec->output_section->vma + sym_sec->output_offset);
+
+      //if (h != NULL)
+      //{
+      //  name = h->root.root.string;
+      //}
+      //else
+      //{
+	//name = bfd_elf_string_from_elf_section (abfd,
+	//	  symtab_hdr->sh_link,
+	//	  isym->st_name);
+	//printf (
+	//  "internal: Here we have this name: %s\n",
+	//  name
+	//);
+	//if (name == NULL || *name == '\0')
+	//{
+	//  name = bfd_section_name (sec);
+	//}
+      //}
     }
     else
     {
@@ -2330,19 +2423,61 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
       h = elf_sym_hashes (abfd)[indx];
       BFD_ASSERT (h != NULL);
 
+      if (h != NULL)
+      {
+        //name = h->root.root.string;
+	//printf (
+	//  "external: Here we have this name: %s\n",
+	//  name
+	//);
+      }
+
       if (h->root.type != bfd_link_hash_defined
           && h->root.type != bfd_link_hash_defweak)
       {
         /* This appears to be a reference to an undefined
           symbol.  Just ignore it--it will be caught by the
           regular reloc processing.  */
+        //printf(
+	//  "This appears to be a reference to an undefined symbol: %u\n",
+	//  h->root.type
+        //);
         continue;
       }
 
       symval = (h->root.u.def.value
                 + h->root.u.def.section->output_section->vma
                 + h->root.u.def.section->output_offset);
+      //if (h != NULL)
+      //{
+      //  name = h->root.root.string;
+      //  printf (
+      //    "external: Here we have this name: %s\n",
+      //    name
+      //  );
+      //}
+      //else
+      //{
+      //  name = bfd_elf_string_from_elf_section (abfd,
+      //  	  symtab_hdr->sh_link,
+      //  	  isym->st_name);
+      //  printf (
+      //    "internal: Here we have this name: %s\n",
+      //    name
+      //  );
+      //  //if (name == NULL || *name == '\0')
+      //  //{
+      //  //  name = bfd_section_name (sec);
+      //  //}
+      //}
     }
+    //if ((symval & 0xffffull) == 0x911c)
+    //{
+    //  printf(
+    //    "debug relax test: %lx\n",
+    //    symval
+    //  );
+    //}
 
     if (!snowhousecpu_do_relax_prefix (abfd, sec, again, symtab_hdr,
       isymbuf, internal_relocs, irel, contents, symval))
