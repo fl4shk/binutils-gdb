@@ -58,6 +58,8 @@ static const snowhousecpu_opc_info_t
   snowhousecpu_opc_info_sdiv_ra_rb_rc = SNOWHOUSECPU_OI_INST_SDIV_RA_RB_RC,
   snowhousecpu_opc_info_umod_ra_rb_rc = SNOWHOUSECPU_OI_INST_UMOD_RA_RB_RC,
   snowhousecpu_opc_info_smod_ra_rb_rc = SNOWHOUSECPU_OI_INST_SMOD_RA_RB_RC,
+  snowhousecpu_opc_info_udivw_ra_rb_rc = SNOWHOUSECPU_OI_INST_UDIVW_RA_RB_RC,
+  snowhousecpu_opc_info_sdivw_ra_rb_rc = SNOWHOUSECPU_OI_INST_SDIVW_RA_RB_RC,
   snowhousecpu_opc_info_ldr_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_LDR_RA_RB_SIMM16,
   snowhousecpu_opc_info_str_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_STR_RA_RB_SIMM16,
   snowhousecpu_opc_info_lduh_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_LDUH_RA_RB_SIMM16,
@@ -239,6 +241,8 @@ snowhousecpu_opc_info_multi_cycle_arr[] =
   &snowhousecpu_opc_info_sdiv_ra_rb_rc,
   &snowhousecpu_opc_info_umod_ra_rb_rc,
   &snowhousecpu_opc_info_smod_ra_rb_rc,
+  &snowhousecpu_opc_info_udivw_ra_rb_rc,
+  &snowhousecpu_opc_info_sdivw_ra_rb_rc,
   //NULL,
 };
 //#define snowhousecpu_opc_info_multi_cycle_arr_size

@@ -38,7 +38,8 @@ SECTIONS
 {
   .text :
   {
-    ${RELOCATING+KEEP (*(SORT_NONE(.init_array)))
+    ${RELOCATING+KEEP (*(SORT_NONE(.text.start)))
+    KEEP (*(SORT_NONE(.init_array)))
     *(.text)
     KEEP (*(SORT_NONE(.fini_array)))
     *(.strings)
@@ -62,10 +63,15 @@ SECTIONS
     ${RELOCATING+ ___bss_size = . - ___bss_start ;  }
   } ${RELOCATING+ > ram}
   /* ${RELOCATING+ PROVIDE (_stack = 0x03fffffc)} */
-  .stack ${RELOCATING+ 0x30000 }  :
+  .stack ${RELOCATING+ 0x18000 /*0x30000*/ }  :
   {
     ${RELOCATING+ _stack = . ; }
     *(.stack)
+  } ${RELOCATING+ > ram}
+  .heap ${RELOCATING+ 0x18004 }  :
+  {
+    ${RELOCATING+ ___heap_start = . ; }
+    ${RELOCATING+ ___heap_end = 0x7fffc ; }
   } ${RELOCATING+ > ram}
   .stab 0 ${RELOCATING+(NOLOAD)} :
   {
