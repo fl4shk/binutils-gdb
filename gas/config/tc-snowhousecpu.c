@@ -3591,34 +3591,58 @@ md_assemble (char *str)
         //pd.have_imm = true;
         pd.parse_good = true;
         break;
-      case SNOWHOUSECPU_OA_LO_RA_RB:
+      //case SNOWHOUSECPU_OA_LO_RA_RB:
+      //  SNOWHOUSECPU_SKIP_ISSPACE ();
+      //  SNOWHOUSECPU_PARSE_SPR (reg_a);
+      //  if (pd.reg_a->index != SNOWHOUSECPU_SPR_ENUM_LO)
+      //  {
+      //    goto post_oa_switch;
+      //  }
+      //  pd.reg_a = NULL;
+      //  SNOWHOUSECPU_PARSE_COMMA ();
+      //  SNOWHOUSECPU_PARSE_GPR (reg_a);
+      //  SNOWHOUSECPU_PARSE_COMMA ();
+      //  SNOWHOUSECPU_PARSE_GPR (reg_b);
+      //  pd.parse_good = true;
+      //  break;
+      //case SNOWHOUSECPU_OA_LO_RA_RB_RC:
+      //  SNOWHOUSECPU_SKIP_ISSPACE ();
+      //  SNOWHOUSECPU_PARSE_SPR (reg_a);
+      //  if (pd.reg_a->index != SNOWHOUSECPU_SPR_ENUM_LO)
+      //  {
+      //    goto post_oa_switch;
+      //  }
+      //  pd.reg_a = NULL;
+      //  SNOWHOUSECPU_PARSE_COMMA ();
+      //  SNOWHOUSECPU_PARSE_GPR (reg_a);
+      //  SNOWHOUSECPU_PARSE_COMMA ();
+      //  SNOWHOUSECPU_PARSE_GPR (reg_b);
+      //  SNOWHOUSECPU_PARSE_COMMA ();
+      //  SNOWHOUSECPU_PARSE_GPR (reg_c);
+      //  pd.parse_good = true;
+      //  break;
+      case SNOWHOUSECPU_OA_RA_HI:
         SNOWHOUSECPU_SKIP_ISSPACE ();
-        SNOWHOUSECPU_PARSE_SPR (reg_a);
-        if (pd.reg_a->index != SNOWHOUSECPU_SPR_ENUM_LO)
+        SNOWHOUSECPU_PARSE_GPR (reg_a);
+        SNOWHOUSECPU_PARSE_COMMA ();
+        SNOWHOUSECPU_PARSE_SPR (reg_b);
+        if (pd.reg_b->index != SNOWHOUSECPU_SPR_ENUM_HI)
         {
           goto post_oa_switch;
         }
-        pd.reg_a = NULL;
-        SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_GPR (reg_a);
-        SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_GPR (reg_b);
+        pd.reg_b = NULL;
         pd.parse_good = true;
         break;
-      case SNOWHOUSECPU_OA_LO_RA_RB_RC:
+      case SNOWHOUSECPU_OA_HI_RB:
         SNOWHOUSECPU_SKIP_ISSPACE ();
         SNOWHOUSECPU_PARSE_SPR (reg_a);
-        if (pd.reg_a->index != SNOWHOUSECPU_SPR_ENUM_LO)
+        if (pd.reg_a->index != SNOWHOUSECPU_SPR_ENUM_HI)
         {
           goto post_oa_switch;
         }
         pd.reg_a = NULL;
         SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_GPR (reg_a);
-        SNOWHOUSECPU_PARSE_COMMA ();
         SNOWHOUSECPU_PARSE_GPR (reg_b);
-        SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_GPR (reg_c);
         pd.parse_good = true;
         break;
       default:
@@ -3646,93 +3670,93 @@ md_assemble (char *str)
       //  && pd.opc_info != &snowhousecpu_opc_info_ret_ira
       //)
       {
-	switch (pd.opc_info->subop.kind)
-	{
-	  case SNOWHOUSECPU_SOK_NONE:
-	  {
-	    break;
-	  }
-	  case SNOWHOUSECPU_SOK_RC_IDX_FULL:
-	  {
-	    if (pd.opc_info->subop.is_non_inequality_branch_etc)
-	    {
-	      //if (
-	      //  (pd.reg_a.index == pd.reg_b->index && pd.reg_a->index != 0)
-	      //  == (pd.opc_info->subop.is_non_ineqaulity_branch_etc - 1ull)
-	      //)
-	      //{
-		if (pd.opc_info->subop.is_non_inequality_branch_etc - 1 == 0)
-		{
-		  //pd.reg_a = gprs[0];
-		  pd.reg_b = pd.reg_a;
-		}
-		else if (pd.opc_info->subop.is_non_inequality_branch_etc - 1 == 1)
-		{
-		  // beq, bne
-		  //fprintf (
-		  //  stderr,
-		  //  "beq, bne: %s %s, %s, simm16\n",
-		  //  pd.opc_info->name,
-		  //  pd.reg_a->name,
-		  //  pd.reg_b->name
-		  //);
-		  if (
-		    (pd.reg_a->index == pd.reg_b->index && pd.reg_a->index != 0)
-		    //== (pd.opc_info->subop.is_non_ineqaulity_branch_etc - 1ull)
-		  ) {
-		    pd.reg_a = (gprs + SNOWHOUSECPU_GPR_ENUM_R0);
-		    pd.reg_b = (gprs + SNOWHOUSECPU_GPR_ENUM_R0);
-		  }
-		}
-		else
-		{
-		  gas_assert (false);
-		}
-	      //}
-	    }
-	    pd.reg_c = (gprs + pd.opc_info->subop.val);
-	  }
-	    break;
-	  case SNOWHOUSECPU_SOK_RC_IDX_NZ:
-	  {
-	    //if ((self->subop_rc_idx != 0) == opc_info->subop.val)
-	    //{
-	    //  finished = true;
-	    //}
-	    //pd.reg_c = (gprs + pd.opc_info->subop.val);
-	    //fprintf (
-	    //  stderr,
-	    //  "debug in parse: %s\n",
-	    //  pd.reg_c != NULL ? pd.reg_c->name : "null"
-	    //);
-	  }
-	    break;
-	  case SNOWHOUSECPU_SOK_IMM16_LO:
-	  {
-	    const snowhousecpu_temp_t prev_simm = pd.simm;
-	    snowhousecpu_set_insn_field_p (
-	      SNOWHOUSECPU_SUBOP_IMM16_MASK, SNOWHOUSECPU_SUBOP_IMM16_BITPOS,
-	      &pd.simm, pd.opc_info->subop.val
-	    );
-	    if (
-	      pd.opc_info->oparg == SNOWHOUSECPU_OA_RA_RB_SHIFT_U5
-	    )
-	    {
-	      // yes, technically this isn't a full instruction that we're setting here!
-	      snowhousecpu_set_insn_field_p (
-		SNOWHOUSECPU_SHIFT_IMM5_MASK, SNOWHOUSECPU_SHIFT_IMM5_BITPOS,
-		&pd.simm, prev_simm
-	      );
-	      //fprintf (
-	      //  stderr,
-	      //  "shift by immediate: %lx %lu\n",
-	      //  pd.simm,
-	      //  prev_simm
-	      //);
-	    }
-	  }
-	    break;
-	}
+        switch (pd.opc_info->subop.kind)
+        {
+          case SNOWHOUSECPU_SOK_NONE:
+          {
+            break;
+          }
+          case SNOWHOUSECPU_SOK_RC_IDX_FULL:
+          {
+            if (pd.opc_info->subop.is_non_inequality_branch_etc)
+            {
+              //if (
+              //  (pd.reg_a.index == pd.reg_b->index && pd.reg_a->index != 0)
+              //  == (pd.opc_info->subop.is_non_ineqaulity_branch_etc - 1ull)
+              //)
+              //{
+          if (pd.opc_info->subop.is_non_inequality_branch_etc - 1 == 0)
+          {
+            //pd.reg_a = gprs[0];
+            pd.reg_b = pd.reg_a;
+          }
+          else if (pd.opc_info->subop.is_non_inequality_branch_etc - 1 == 1)
+          {
+            // beq, bne
+            //fprintf (
+            //  stderr,
+            //  "beq, bne: %s %s, %s, simm16\n",
+            //  pd.opc_info->name,
+            //  pd.reg_a->name,
+            //  pd.reg_b->name
+            //);
+            if (
+              (pd.reg_a->index == pd.reg_b->index && pd.reg_a->index != 0)
+              //== (pd.opc_info->subop.is_non_ineqaulity_branch_etc - 1ull)
+            ) {
+              pd.reg_a = (gprs + SNOWHOUSECPU_GPR_ENUM_R0);
+              pd.reg_b = (gprs + SNOWHOUSECPU_GPR_ENUM_R0);
+            }
+          }
+          else
+          {
+            gas_assert (false);
+          }
+              //}
+            }
+            pd.reg_c = (gprs + pd.opc_info->subop.val);
+          }
+            break;
+          case SNOWHOUSECPU_SOK_RC_IDX_NZ:
+          {
+            //if ((self->subop_rc_idx != 0) == opc_info->subop.val)
+            //{
+            //  finished = true;
+            //}
+            //pd.reg_c = (gprs + pd.opc_info->subop.val);
+            //fprintf (
+            //  stderr,
+            //  "debug in parse: %s\n",
+            //  pd.reg_c != NULL ? pd.reg_c->name : "null"
+            //);
+          }
+            break;
+          case SNOWHOUSECPU_SOK_IMM16_LO:
+          {
+            const snowhousecpu_temp_t prev_simm = pd.simm;
+            snowhousecpu_set_insn_field_p (
+              SNOWHOUSECPU_SUBOP_IMM16_MASK, SNOWHOUSECPU_SUBOP_IMM16_BITPOS,
+              &pd.simm, pd.opc_info->subop.val
+            );
+            if (
+              pd.opc_info->oparg == SNOWHOUSECPU_OA_RA_RB_SHIFT_U5
+            )
+            {
+              // yes, technically this isn't a full instruction that we're setting here!
+              snowhousecpu_set_insn_field_p (
+                SNOWHOUSECPU_SHIFT_IMM5_MASK, SNOWHOUSECPU_SHIFT_IMM5_BITPOS,
+                &pd.simm, prev_simm
+              );
+              //fprintf (
+              //  stderr,
+              //  "shift by immediate: %lx %lu\n",
+              //  pd.simm,
+              //  prev_simm
+              //);
+            }
+          }
+            break;
+        }
       }
       break;
     }
@@ -3751,7 +3775,8 @@ md_assemble (char *str)
 
   if (!pd.parse_good)
   {
-    as_bad (_("Invalid arguments for this instruction"));
+    as_bad (_("Invalid arguments for this instruction: %s %s"),
+      pd.opc_info->name, op_end_prev);
     return;
   }
   /* -------- */

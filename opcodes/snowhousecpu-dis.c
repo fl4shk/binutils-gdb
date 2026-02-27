@@ -420,42 +420,78 @@ do_print_insn_snowhousecpu (snowhousecpu_dasm_info_t *args)
       }
     }
       break;
-    case SNOWHOUSECPU_OA_LO_RA_RB:
+    //case SNOWHOUSECPU_OA_LO_RA_RB:
+    //{
+    //  if (args->length != 4)
+    //  {
+    //    fpr (stream, "%s%x%s",
+    //      "bad (op 0x",
+    //      (unsigned) args->op,
+    //      "; `SNOWHOUSECPU_OA_LO_RA_RB`; `pre`)");
+    //  }
+    //  else
+    //  {
+    //    fpr (stream, "%s\t%s, %s, %s",
+    //      args->opc_info->name,
+    //      sprs[SNOWHOUSECPU_SPR_ENUM_LO].name,
+    //      gprs[args->ra_idx].name,
+    //      gprs[args->rb_idx].name);
+    //  }
+    //}
+    //  break;
+    //case SNOWHOUSECPU_OA_LO_RA_RB_RC:
+    //{
+    //  if (args->length != 4)
+    //  {
+    //    fpr (stream, "%s%x%s",
+    //      "bad (op 0x",
+    //      (unsigned) args->op,
+    //      "; `SNOWHOUSECPU_OA_LO_RA_RB_RC`; `pre`)");
+    //  }
+    //  else
+    //  {
+    //    fpr (stream, "%s\t%s, %s, %s, %s",
+    //      args->opc_info->name,
+    //      sprs[SNOWHOUSECPU_SPR_ENUM_LO].name,
+    //      gprs[args->ra_idx].name,
+    //      gprs[args->rb_idx].name,
+    //      gprs[args->rc_idx].name);
+    //  }
+    //}
+    //  break;
+    case SNOWHOUSECPU_OA_RA_HI:
     {
       if (args->length != 4)
       {
         fpr (stream, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
-          "; `SNOWHOUSECPU_OA_LO_RA_RB`; `pre`)");
+          "; `SNOWHOUSECPU_OA_RA_HI`; `pre`)");
       }
       else
       {
-	fpr (stream, "%s\t%s, %s, %s",
-	  args->opc_info->name,
-	  sprs[SNOWHOUSECPU_SPR_ENUM_LO].name,
-	  gprs[args->ra_idx].name,
-	  gprs[args->rb_idx].name);
+        fpr (stream, "%s\t%s, %s",
+          args->opc_info->name,
+          gprs[args->ra_idx].name,
+          sprs[SNOWHOUSECPU_SPR_ENUM_HI].name);
       }
     }
       break;
-    case SNOWHOUSECPU_OA_LO_RA_RB_RC:
+    case SNOWHOUSECPU_OA_HI_RB:
     {
       if (args->length != 4)
       {
         fpr (stream, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
-          "; `SNOWHOUSECPU_OA_LO_RA_RB_RC`; `pre`)");
+          "; `SNOWHOUSECPU_OA_HI_RB`; `pre`)");
       }
       else
       {
-	fpr (stream, "%s\t%s, %s, %s, %s",
-	  args->opc_info->name,
-	  sprs[SNOWHOUSECPU_SPR_ENUM_LO].name,
-	  gprs[args->ra_idx].name,
-	  gprs[args->rb_idx].name,
-	  gprs[args->rc_idx].name);
+        fpr (stream, "%s\t%s, %s",
+          args->opc_info->name,
+          sprs[SNOWHOUSECPU_SPR_ENUM_HI].name,
+	  gprs[args->rb_idx].name);
       }
     }
       break;

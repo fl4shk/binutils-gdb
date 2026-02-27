@@ -53,7 +53,11 @@ static const snowhousecpu_opc_info_t
   snowhousecpu_opc_info_cpy_ra_ira = SNOWHOUSECPU_OI_INST_CPY_RA_IRA,
   snowhousecpu_opc_info_cpy_ie_rb = SNOWHOUSECPU_OI_INST_CPY_IE_RB,
   snowhousecpu_opc_info_ret_ira = SNOWHOUSECPU_OI_INST_RET_IRA,
-  snowhousecpu_opc_info_mul_ra_rb_rc = SNOWHOUSECPU_OI_INST_MUL_RA_RB_RC,
+  snowhousecpu_opc_info_cpy_ra_hi = SNOWHOUSECPU_OI_INST_CPY_RA_HI,
+  snowhousecpu_opc_info_cpy_hi_rb = SNOWHOUSECPU_OI_INST_CPY_HI_RB,
+
+  snowhousecpu_opc_info_umulw_ra_rb_rc = SNOWHOUSECPU_OI_INST_UMULW_RA_RB_RC,
+  snowhousecpu_opc_info_smulw_ra_rb_rc = SNOWHOUSECPU_OI_INST_SMULW_RA_RB_RC,
   snowhousecpu_opc_info_udiv_ra_rb_rc = SNOWHOUSECPU_OI_INST_UDIV_RA_RB_RC,
   snowhousecpu_opc_info_sdiv_ra_rb_rc = SNOWHOUSECPU_OI_INST_SDIV_RA_RB_RC,
   snowhousecpu_opc_info_umod_ra_rb_rc = SNOWHOUSECPU_OI_INST_UMOD_RA_RB_RC,
@@ -94,8 +98,8 @@ static const snowhousecpu_opc_info_t
   snowhousecpu_opc_info_llsb_ra_rb = SNOWHOUSECPU_OI_INST_LLSB_RA_RB,
   snowhousecpu_opc_info_sch_ra_rb_rc = SNOWHOUSECPU_OI_INST_SCH_RA_RB_RC,
   snowhousecpu_opc_info_scb_ra_rb_rc = SNOWHOUSECPU_OI_INST_SCB_RA_RB_RC,
-  snowhousecpu_opc_info_llp_lo_ra_rb = SNOWHOUSECPU_OI_INST_LLP_LO_RA_RB,
-  snowhousecpu_opc_info_scp_lo_ra_rb_rc = SNOWHOUSECPU_OI_INST_SCP_LO_RA_RB_RC;
+  snowhousecpu_opc_info_llp_ra_rb = SNOWHOUSECPU_OI_INST_LLP_RA_RB,
+  snowhousecpu_opc_info_scp_ra_rb_rc = SNOWHOUSECPU_OI_INST_SCP_RA_RB_RC;
 
 #define SNOWHOUSECPU_OPC_ARRAY_SIZE(arr) \
   ((sizeof (arr) / sizeof (arr[0])))
@@ -225,6 +229,8 @@ snowhousecpu_opc_info_shift_etc_arr[] =
   &snowhousecpu_opc_info_cpy_ra_ira,
   &snowhousecpu_opc_info_cpy_ie_rb,
   &snowhousecpu_opc_info_ret_ira,
+  &snowhousecpu_opc_info_cpy_ra_hi,
+  &snowhousecpu_opc_info_cpy_hi_rb,
   //NULL,
 };
 //#define snowhousecpu_opc_info_shift_etc_arr_size
@@ -236,7 +242,8 @@ static const size_t snowhousecpu_opc_info_shift_etc_arr_size = (
 static const snowhousecpu_opc_info_t *
 snowhousecpu_opc_info_multi_cycle_arr[] =
 {
-  &snowhousecpu_opc_info_mul_ra_rb_rc,
+  &snowhousecpu_opc_info_umulw_ra_rb_rc,
+  &snowhousecpu_opc_info_smulw_ra_rb_rc,
   &snowhousecpu_opc_info_udiv_ra_rb_rc,
   &snowhousecpu_opc_info_sdiv_ra_rb_rc,
   &snowhousecpu_opc_info_umod_ra_rb_rc,
@@ -329,8 +336,8 @@ snowhousecpu_opc_info_ll_sc_arr[] = {
   &snowhousecpu_opc_info_llsb_ra_rb,
   &snowhousecpu_opc_info_sch_ra_rb_rc,
   &snowhousecpu_opc_info_scb_ra_rb_rc,
-  &snowhousecpu_opc_info_llp_lo_ra_rb,
-  &snowhousecpu_opc_info_scp_lo_ra_rb_rc,
+  &snowhousecpu_opc_info_llp_ra_rb,
+  &snowhousecpu_opc_info_scp_ra_rb_rc,
 };
 static const size_t snowhousecpu_opc_info_ll_sc_arr_size = (
   SNOWHOUSECPU_OPC_ARRAY_SIZE (snowhousecpu_opc_info_ll_sc_arr)
