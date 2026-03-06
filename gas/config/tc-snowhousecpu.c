@@ -3980,11 +3980,11 @@ bool snowhousecpu_parse_name (const char *name)
   { "directive", handler_func, param } */
 const pseudo_typeS md_pseudo_table [] =
 {
-  {"hword", cons, 2},
+  {"i16", cons, 2},
   /* SnowHouseCpu native word size is 4 bytes, so we override
     the GAS default of 2. */
-  {"word", cons, 4},
-  {"dword", cons, 8},
+  {"i32", cons, 4},
+  {"i64", cons, 8},
   {NULL, NULL, 0},
 };
 
