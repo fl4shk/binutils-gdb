@@ -28,10 +28,11 @@ MEMORY
 {
   /* rom (rx) : */
   /* ram (w!rx) : ORIGIN = 0x0000, LENGTH = 0x4000000 */
-  ram (w!rx) : ORIGIN = 0x0000, LENGTH = 0x1000000
-  far_ram_0 (w!rx) : ORIGIN = 0x1000000, LENGTH = 0x1000
-  far_ram_1 (w!rx) : ORIGIN = 0x2000000, LENGTH = 0x1000
-  farthest_ram (w!rx) : ORIGIN = 0xfe000004, LENGTH = 0x8000
+  ram (w!rx) : ORIGIN = 0x0000, LENGTH = 0x4000000 /* 64 MiB */
+  /* framebuffer (w!rx) : ORIGIN = 0x2000000 */
+  /* far_ram_0 (w!rx) : ORIGIN = 0x1000000, LENGTH = 0x1000 */
+  /* far_ram_1 (w!rx) : ORIGIN = 0x2000000, LENGTH = 0x1000 */
+  /* farthest_ram (w!rx) : ORIGIN = 0xfe000004, LENGTH = 0x8000 */
 }
 
 SECTIONS
@@ -63,15 +64,16 @@ SECTIONS
     ${RELOCATING+ ___bss_size = . - ___bss_start ;  }
   } ${RELOCATING+ > ram}
   /* ${RELOCATING+ PROVIDE (_stack = 0x03fffffc)} */
-  .stack ${RELOCATING+ 0x18000 /*0x30000*/ }  :
+  .stack ${RELOCATING+ 0x2fffffc /*0x30000*/ }  :
   {
     ${RELOCATING+ _stack = . ; }
     *(.stack)
   } ${RELOCATING+ > ram}
-  .heap ${RELOCATING+ 0x18004 }  :
+  .heap ${RELOCATING+ 0x3000000 }  :
   {
+    /* 16 MiB of heap */
     ${RELOCATING+ ___heap_start = . ; }
-    ${RELOCATING+ ___heap_end = 0x7fffc ; }
+    ${RELOCATING+ ___heap_end = 0x3fffffc ; }
   } ${RELOCATING+ > ram}
   .stab 0 ${RELOCATING+(NOLOAD)} :
   {
@@ -81,6 +83,7 @@ SECTIONS
   {
     *(.stabstr)
   }
+  /*
   .far_0 :
   {
     ${RELOCATING+ ___far_0_start = . ; }
@@ -102,5 +105,6 @@ SECTIONS
     ${RELOCATING+ ___farthest_end = . ;  }
     ${RELOCATING+ ___farthest_size = . - ___farthest_start ;  }
   } ${RELOCATING+ > farthest_ram}
+  */
 }
 EOF
