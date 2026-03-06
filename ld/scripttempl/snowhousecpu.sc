@@ -50,26 +50,28 @@ SECTIONS
   .data :
   {
     ${RELOCATING+ ___data_start = . ; }
-    ${RELOCATING+ ___data_source = . ; }
+    /* ${RELOCATING+ ___data_source = LOADADDR(.) ; } */
     *(.data)
     ${RELOCATING+ ___data_end = . ; }
-    ${RELOCATING+ ___data_size = . - ___data_start ;  }
+    ${RELOCATING+ ___data_size = ___data_end - ___data_start ;  }
   } ${RELOCATING+ > ram}
+  ${RELOCATING+ PROVIDE(___data_source = LOADADDR(.data)) ; }
   .rodata :
   {
     ${RELOCATING+ ___rodata_start = . ; }
-    ${RELOCATING+ ___rodata_source = . ; }
+    /* ${RELOCATING+ ___rodata_source = . ; } */
     *(.rodata)
     ${RELOCATING+ ___rodata_end = . ; }
-    ${RELOCATING+ ___rodata_size = . - ___rodata_start ;  }
+    ${RELOCATING+ ___rodata_size = ___rodata_end - ___rodata_start ;  }
   } ${RELOCATING+ > ram}
+  ${RELOCATING+ PROVIDE(___rodata_source = LOADADDR(.rodata)) ;}
   .bss :
   {
     ${RELOCATING+ ___bss_start = . ; }
     *(.bss)
     *(COMMON)
     ${RELOCATING+ ___bss_end = . ;  }
-    ${RELOCATING+ ___bss_size = . - ___bss_start ;  }
+    ${RELOCATING+ ___bss_size = ___bss_end - ___bss_start ;  }
   } ${RELOCATING+ > ram}
   /* ${RELOCATING+ PROVIDE (_stack = 0x03fffffc)} */
   .stack ${RELOCATING+ 0x2fffffc /*0x30000*/ }  :
