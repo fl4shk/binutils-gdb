@@ -55,6 +55,14 @@ SECTIONS
     ${RELOCATING+ ___data_end = . ; }
     ${RELOCATING+ ___data_size = . - ___data_start ;  }
   } ${RELOCATING+ > ram}
+  .rodata :
+  {
+    ${RELOCATING+ ___rodata_start = . ; }
+    ${RELOCATING+ ___rodata_source = . ; }
+    *(.rodata)
+    ${RELOCATING+ ___rodata_end = . ; }
+    ${RELOCATING+ ___rodata_size = . - ___rodata_start ;  }
+  } ${RELOCATING+ > ram}
   .bss :
   {
     ${RELOCATING+ ___bss_start = . ; }
