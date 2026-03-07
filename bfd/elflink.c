@@ -602,7 +602,7 @@ bfd_elf_link_record_dynamic_symbol (struct bfd_link_info *info,
       /* We don't put any version information in the dynamic string
 	 table.  */
       name = h->root.root.string;
-      p = strchr (name, ELF_VER_CHR);
+      p = (char *)strchr (name, ELF_VER_CHR);
       if (p != NULL)
 	{
 	  unversioned_name = bfd_malloc (p - name + 1);
@@ -682,7 +682,7 @@ bfd_elf_record_link_assignment (bfd *output_bfd,
   if (h->versioned == unknown)
     {
       /* Set versioned if symbol version is unknown.  */
-      char *version = strrchr (name, ELF_VER_CHR);
+      char *version = (char *)strrchr (name, ELF_VER_CHR);
       if (version)
 	{
 	  if (version > name && version[-1] != ELF_VER_CHR)
@@ -1141,7 +1141,7 @@ _bfd_elf_merge_symbol (bfd *abfd,
   if (h->versioned != unversioned)
     {
       /* Symbol version is unknown or versioned.  */
-      new_version = strrchr (name, ELF_VER_CHR);
+      new_version = (char *)strrchr (name, ELF_VER_CHR);
       if (new_version)
 	{
 	  if (h->versioned == unknown)
@@ -1191,7 +1191,7 @@ _bfd_elf_merge_symbol (bfd *abfd,
 	      char *old_version;
 
 	      if (h->versioned >= versioned)
-		old_version = strrchr (h->root.root.string,
+		old_version = (char *)strrchr (h->root.root.string,
 				       ELF_VER_CHR) + 1;
 	      else
 		 old_version = NULL;
@@ -1926,7 +1926,7 @@ _bfd_elf_add_default_symbol (bfd *abfd,
      create an indirect symbol from the default name to the fully
      decorated name.  This will cause external references which do not
      specify a version to be bound to this version of the symbol.  */
-  p = strchr (name, ELF_VER_CHR);
+  p = (char *)strchr (name, ELF_VER_CHR);
   if (h->versioned == unknown)
     {
       if (p == NULL)
@@ -2597,7 +2597,7 @@ _bfd_elf_link_assign_sym_version (struct elf_link_hash_entry *h, void *data)
     }
 
   hide = false;
-  p = strchr (h->root.root.string, ELF_VER_CHR);
+  p = (char *)strchr (h->root.root.string, ELF_VER_CHR);
   if (p != NULL && h->verinfo.vertree == NULL)
     {
       struct bfd_elf_version_tree *t;
@@ -5579,7 +5579,7 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
 	      && !dynamic
 	      && (abfd->flags & BFD_PLUGIN) == 0)
 	    {
-	      char *p = strchr (name, ELF_VER_CHR);
+	      char *p = (char *)strchr (name, ELF_VER_CHR);
 	      if (p != NULL && p[1] != ELF_VER_CHR)
 		{
 		  /* Queue non-default versions so that .symver x, x@FOO
@@ -5825,7 +5825,7 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
 	  char *shortname, *p;
 	  size_t amt;
 
-	  p = strchr (h->root.root.string, ELF_VER_CHR);
+	  p = (char *)strchr (h->root.root.string, ELF_VER_CHR);
 	  if (p == NULL
 	      || (h->root.type != bfd_link_hash_defined
 		  && h->root.type != bfd_link_hash_defweak))
@@ -6114,7 +6114,7 @@ _bfd_elf_archive_symbol_lookup (bfd *abfd,
      The effect is that references to the symbol with and without the
      version will be matched by the default symbol in the archive.  */
 
-  p = strchr (name, ELF_VER_CHR);
+  p = (char *)strchr (name, ELF_VER_CHR);
   if (p == NULL || p[1] != ELF_VER_CHR)
     {
       /* Add this symbol to first hash if this archive has the first
@@ -6379,7 +6379,7 @@ elf_collect_hash_codes (struct elf_link_hash_entry *h, void *data)
   name = h->root.root.string;
   if (h->versioned >= versioned)
     {
-      char *p = strchr (name, ELF_VER_CHR);
+      char *p = (char *)strchr (name, ELF_VER_CHR);
       if (p != NULL)
 	{
 	  alc = (char *) bfd_malloc (p - name + 1);
@@ -6452,7 +6452,7 @@ elf_collect_gnu_hash_codes (struct elf_link_hash_entry *h, void *data)
   name = h->root.root.string;
   if (h->versioned >= versioned)
     {
-      char *p = strchr (name, ELF_VER_CHR);
+      char *p = (char *)strchr (name, ELF_VER_CHR);
       if (p != NULL)
 	{
 	  alc = (char *) bfd_malloc (p - name + 1);
@@ -10267,8 +10267,8 @@ elf_link_output_symstrtab (void *finf,
 	    {
 	      /* Keep only one '@' for versioned symbols defined in
 	         shared objects.  */
-	      char *version = strrchr (name, ELF_VER_CHR);
-	      char *base_end = strchr (name, ELF_VER_CHR);
+	      char *version = (char *)strrchr (name, ELF_VER_CHR);
+	      char *base_end = (char *)strchr (name, ELF_VER_CHR);
 	      if (version != base_end)
 		{
 		  size_t base_len;
@@ -11011,7 +11011,7 @@ elf_link_output_extsym (struct bfd_hash_entry *bh, void *data)
 	      || h->ref_dynamic
 	      || !h->def_regular))
 	{
-	  char *p = strrchr (h->root.root.string, ELF_VER_CHR);
+	  char *p = (char *)strrchr (h->root.root.string, ELF_VER_CHR);
 
 	  if (p && p [1] != '\0')
 	    {

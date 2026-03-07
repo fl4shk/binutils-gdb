@@ -1678,7 +1678,7 @@ bfd_get_target_info (const char *target_name, bfd *abfd,
 
       if (arches && tname)
 	{
-	  char *hyp = strchr (tname, '-');
+	  char *hyp = (char *)strchr (tname, '-');
 
 	  if (hyp != NULL)
 	    {

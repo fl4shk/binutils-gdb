@@ -534,7 +534,7 @@ ldelf_search_needed (const char *path, struct dt_needed *n, int force,
 			}
 
 		      replacement = freeme;
-		      if ((slash = strrchr (replacement, '/')) != NULL)
+		      if ((slash = (char *)strrchr (replacement, '/')) != NULL)
 			* slash = 0;
 		    }
 		}
@@ -790,7 +790,7 @@ ldelf_parse_ld_so_conf_include (struct ldelf_ld_so_conf *info,
 
   if (pattern[0] != '/')
     {
-      char *p = strrchr (filename, '/');
+      char *p = (char *)strrchr (filename, '/');
       size_t patlen = strlen (pattern) + 1;
 
       newp = xmalloc (p - filename + 1 + patlen);

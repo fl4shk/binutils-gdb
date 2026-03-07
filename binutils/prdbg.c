@@ -2656,7 +2656,7 @@ tg_start_function (void *p, const char *name, bool global)
 	  info->stack->method = xstrdup ("");
 	  name = dname;
 	}
-      sep = strchr (name, '(');
+      sep = (char *)strchr (name, '(');
       if (sep)
 	*sep = 0;
       /* Obscure functions as type_info function.  */

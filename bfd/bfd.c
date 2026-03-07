@@ -1058,7 +1058,7 @@ _bfd_doprnt (bfd_print_callback print, void *stream, const char *format,
       if (*ptr != '%')
 	{
 	  /* While we have regular characters, print them.  */
-	  char *end = strchr (ptr, '%');
+	  char *end = (char *)strchr (ptr, '%');
 	  if (end != NULL)
 	    result = print (stream, "%.*s", (int) (end - ptr), ptr);
 	  else

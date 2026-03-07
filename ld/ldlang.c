@@ -288,7 +288,7 @@ archive_path (const char *pattern)
   if (link_info.path_separator == 0)
     return p;
 
-  p = strchr (pattern, link_info.path_separator);
+  p = (char *)strchr (pattern, link_info.path_separator);
 #ifdef HAVE_DOS_BASED_FILE_SYSTEM
   if (p == NULL || link_info.path_separator != ':')
     return p;

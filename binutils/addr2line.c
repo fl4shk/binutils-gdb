@@ -387,7 +387,7 @@ translate_addresses (bfd *abfd, asection *section)
                 {
                   char *h;
 
-                  h = strrchr (filename, '/');
+                  h = (char *)strrchr (filename, '/');
                   if (h != NULL)
                     filename = h + 1;
                 }

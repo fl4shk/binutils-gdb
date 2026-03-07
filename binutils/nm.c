@@ -690,7 +690,7 @@ print_symname (const char *form, struct extended_symbol_info *info,
   if (!with_symbol_versions
       && bfd_get_flavour (abfd) == bfd_target_elf_flavour)
     {
-      atver = strchr (name, '@');
+      atver = (char *)strchr (name, '@');
       if (atver)
 	*atver = 0;
     }
