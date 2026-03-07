@@ -1433,7 +1433,7 @@ snowhousecpu_elf_relocate_section (bfd *output_bfd,
           //{
           //  fprintf (
           //    stderr,
-          //    "snowhousecpu _bfd_final_link_relocate(): debug: "
+          //    "snowhousecpu R_SNOWHOUSECPU_32(): debug: "
           //    "r_offset:%lx relocation:%lx r_addend:%lx\n",
           //    rel->r_offset,
           //    relocation,
@@ -1448,12 +1448,19 @@ snowhousecpu_elf_relocate_section (bfd *output_bfd,
 
           // concept borrowed from RISC-V's `perform_relocation()`
           bfd_vma word;
-          word = bfd_get (
-            howto->bitsize, input_bfd, contents + rel->r_offset
-          );
           word = (
-            (word & ~howto->dst_mask) | (relocation & howto->dst_mask)
-          );
+	    //bfd_get (
+	    //  howto->bitsize, input_bfd, contents + rel->r_offset
+	    //)
+	    (
+	      relocation
+	      + rel->r_addend
+	    ) & howto->dst_mask
+	  );
+          //word = (
+          //  (word & ~howto->dst_mask) | (relocation & howto->dst_mask)
+          //);
+          //word &= howto->dst_mask;
           bfd_put (
             howto->bitsize, input_bfd, word, contents + rel->r_offset
           );
