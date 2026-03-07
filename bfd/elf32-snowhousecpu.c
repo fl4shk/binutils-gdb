@@ -546,7 +546,7 @@ static reloc_howto_type snowhousecpu_elf_howto_table [] =
       false,                        /* partial_inplace */
       0,                            /* src_mask */
       MINUS_ONE,                    /* dst_mask */
-      false),                       /* pcrel_offset */
+      false /* should this be true? */), /* pcrel_offset */
   /* -------- */
 };
 
@@ -866,8 +866,8 @@ snowhousecpu_elf_do_non_add_sub_imm_reloc (bfd *input_bfd,
       //  (unsigned) (insn)
       //);
       snowhousecpu_put_s32_p (
-	&prefix_insn, &insn, relocation,
-	snowhousecpu_howto_to_imm_kind (howto)
+        &prefix_insn, &insn, relocation,
+        snowhousecpu_howto_to_imm_kind (howto)
       );
 
       bfd_put_32 (input_bfd, prefix_insn, contents + address);
@@ -957,19 +957,19 @@ snowhousecpu_elf_do_non_add_sub_imm_reloc (bfd *input_bfd,
       //  relocation);
       if (howto->type == R_SNOWHOUSECPU_S16_PCREL)
       {
-	snowhousecpu_set_insn_field_p (
-	  SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, relocation >> 2
-	);
+        snowhousecpu_set_insn_field_p (
+          SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, relocation >> 2
+        );
       }
       else
       {
-	//printf (
-	//  "simm24: relocation: %lx\n",
-	//  relocation
-	//);
-	snowhousecpu_set_insn_field_p (
-	  SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, &insn, relocation >> 2
-	);
+        //printf (
+        //  "simm24: relocation: %lx\n",
+        //  relocation
+        //);
+        snowhousecpu_set_insn_field_p (
+          SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, &insn, relocation >> 2
+        );
       }
       bfd_put_32 (input_bfd, insn, contents + address);
     }
@@ -994,16 +994,16 @@ snowhousecpu_elf_do_non_add_sub_imm_reloc (bfd *input_bfd,
       relocation -= temp_length;
       //snowhousecpu_put_g3_s21 (&prefix_insn, &insn, relocation);
       if (
-	howto->type == R_SNOWHOUSECPU_S32_FOR_S24_PCREL
+        howto->type == R_SNOWHOUSECPU_S32_FOR_S24_PCREL
       ) {
-	//printf (
-	//  "s32 for simm24: relocation: %lx\n",
-	//  relocation
-	//);
+        //printf (
+        //  "s32 for simm24: relocation: %lx\n",
+        //  relocation
+        //);
       }
       snowhousecpu_put_s32_p (
-	&prefix_insn, &insn, relocation,
-	snowhousecpu_howto_to_imm_kind (howto)
+        &prefix_insn, &insn, relocation,
+        snowhousecpu_howto_to_imm_kind (howto)
       );
       bfd_put_32 (input_bfd, prefix_insn, contents + address);
       bfd_put_32 (input_bfd, insn, contents + address + insn_dist);
@@ -1200,15 +1200,15 @@ snowhousecpu_elf_do_add_sub_reloc (bfd *input_bfd, reloc_howto_type *howto,
         case R_SNOWHOUSECPU_S32_FOR_U16_ADD32:
           //simm = snowhousecpu_get_g1_s32 (prefix_insn, insn);
           simm = snowhousecpu_get_s32 (
-	    prefix_insn, insn,
-	    snowhousecpu_howto_to_imm_kind (howto)
-	  );
+            prefix_insn, insn,
+            snowhousecpu_howto_to_imm_kind (howto)
+          );
           relocation += simm;
           //snowhousecpu_put_g1_s32 (&prefix_insn, &insn, relocation);
           snowhousecpu_put_s32_p (
-	    &prefix_insn, &insn, relocation,
-	    snowhousecpu_howto_to_imm_kind (howto)
-	  );
+            &prefix_insn, &insn, relocation,
+            snowhousecpu_howto_to_imm_kind (howto)
+          );
           break;
         //case R_SNOWHOUSECPU_G1_S32_FOR_U5_SUB32:
         //case R_SNOWHOUSECPU_G1_S32_SUB32:
@@ -1216,16 +1216,16 @@ snowhousecpu_elf_do_add_sub_reloc (bfd *input_bfd, reloc_howto_type *howto,
         case R_SNOWHOUSECPU_S32_FOR_U16_SUB32:
           //simm = snowhousecpu_get_g1_s32 (prefix_insn, insn);
           simm = snowhousecpu_get_s32 (
-	    prefix_insn, insn,
-	    snowhousecpu_howto_to_imm_kind (howto)
-	  );
+            prefix_insn, insn,
+            snowhousecpu_howto_to_imm_kind (howto)
+          );
           //relocation -= simm;
           relocation = simm - relocation;
           //snowhousecpu_put_g1_s32 (&prefix_insn, &insn, relocation);
           snowhousecpu_put_s32_p (
-	    &prefix_insn, &insn, relocation,
-	    snowhousecpu_howto_to_imm_kind (howto)
-	  );
+            &prefix_insn, &insn, relocation,
+            snowhousecpu_howto_to_imm_kind (howto)
+          );
           break;
         //case R_SNOWHOUSECPU_G3_S32_PCREL_ADD32:
         //  simm = snowhousecpu_get_g3_s32 (prefix_insn, insn);
@@ -1428,11 +1428,36 @@ snowhousecpu_elf_relocate_section (bfd *output_bfd,
         case R_SNOWHOUSECPU_CFA_SET6:
         case R_SNOWHOUSECPU_EH_32_PCREL:
         //case R_SNOWHOUSECPU_FDE_32_PCREL:
-          r = _bfd_final_link_relocate 
-            (howto, input_bfd,
-            input_section, contents,
-            rel->r_offset, relocation,
-            rel->r_addend);
+        {
+          //if (howto->type == R_SNOWHOUSECPU_32)
+          //{
+          //  fprintf (
+          //    stderr,
+          //    "snowhousecpu _bfd_final_link_relocate(): debug: "
+          //    "r_offset:%lx relocation:%lx r_addend:%lx\n",
+          //    rel->r_offset,
+          //    relocation,
+          //    rel->r_addend
+          //  );
+          //}
+          //r = _bfd_final_link_relocate 
+          //  (howto, input_bfd,
+          //  input_section, contents,
+          //  rel->r_offset, relocation,
+          //  rel->r_addend);
+
+          // concept borrowed from RISC-V's `perform_relocation()`
+          bfd_vma word;
+          word = bfd_get (
+            howto->bitsize, input_bfd, contents + rel->r_offset
+          );
+          word = (
+            (word & ~howto->dst_mask) | (relocation & howto->dst_mask)
+          );
+          bfd_put (
+            howto->bitsize, input_bfd, word, contents + rel->r_offset
+          );
+        }
           break;
 
         case R_SNOWHOUSECPU_S16:
@@ -1892,10 +1917,10 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
         //  (&snowhousecpu_enc_info_g3_s9, insn);
         simm = args->value;
         //fprintf (
-	//  stderr,
-	//  "debug: begin: insn:%x; simm:%lx\n",
-	//  (unsigned) insn,
-	//  (uint64_t) simm
+        //  stderr,
+        //  "debug: begin: insn:%x; simm:%lx\n",
+        //  (unsigned) insn,
+        //  (uint64_t) simm
         //);
           
         
@@ -1911,14 +1936,14 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
           //      ) : &snowhousecpu_enc_info_g7_icreload_s5),
           //  &insn, simm);
           snowhousecpu_set_insn_field_p (
-	    SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, simm
+            SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, simm
           );
-	  //fprintf (
-	  //  stderr,
-	  //  "debug: !pcrel: insn:%x; simm:%lx\n",
-	  //  (unsigned) insn,
-	  //  (uint64_t) simm
-	  //);
+          //fprintf (
+          //  stderr,
+          //  "debug: !pcrel: insn:%x; simm:%lx\n",
+          //  (unsigned) insn,
+          //  (uint64_t) simm
+          //);
         }
         else // if (args->is_pcrel)
         {
@@ -1930,24 +1955,24 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
           //  );
           if (args->target_bitsize == 18)
           {
-	    //printf (
-	    //  "pcrel relax simm18: %lx\n",
-	    //  simm - insn_dist
-	    //);
-	    snowhousecpu_set_insn_field_p (
-	      SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, (simm - insn_dist) >> 2
-	    );
-	  }
-	  else
-	  {
-	    //printf (
-	    //  "pcrel relax simm26: %lx\n",
-	    //  simm - insn_dist
-	    //);
-	    snowhousecpu_set_insn_field_p (
-	      SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, &insn, (simm - insn_dist) >> 2
-	    );
-	  }
+            //printf (
+            //  "pcrel relax simm18: %lx\n",
+            //  simm - insn_dist
+            //);
+            snowhousecpu_set_insn_field_p (
+              SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, &insn, (simm - insn_dist) >> 2
+            );
+          }
+          else
+          {
+            //printf (
+            //  "pcrel relax simm26: %lx\n",
+            //  simm - insn_dist
+            //);
+            snowhousecpu_set_insn_field_p (
+              SNOWHOUSECPU_SIMM24_MASK, SNOWHOUSECPU_SIMM24_BITPOS, &insn, (simm - insn_dist) >> 2
+            );
+          }
         }
 
       bfd_put_32 (args->abfd, insn,
@@ -1956,9 +1981,9 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
           + insn_dist
         );
       insn = bfd_get_32 (args->abfd,
-	args->contents + args->irel->r_offset
-	//+ 2
-	+ insn_dist
+        args->contents + args->irel->r_offset
+        //+ 2
+        + insn_dist
       );
       //fprintf (
       //  stderr,
@@ -1986,42 +2011,42 @@ snowhousecpu_do_relax_prefix_innards (snowhousecpu_relax_temp_t *args)
       case SNOWHOUSECPU_IMM_KIND_NONE:
       case SNOWHOUSECPU_IMM_KIND_PRE_S16:
       case SNOWHOUSECPU_IMM_KIND_SHIFT_U5:
-	break;
+        break;
       case SNOWHOUSECPU_IMM_KIND_S16:
-	temp_reloc_type = R_SNOWHOUSECPU_S16;
-	break;
+        temp_reloc_type = R_SNOWHOUSECPU_S16;
+        break;
       case SNOWHOUSECPU_IMM_KIND_U16:
-	temp_reloc_type = R_SNOWHOUSECPU_U16;
-	break;
+        temp_reloc_type = R_SNOWHOUSECPU_U16;
+        break;
       case SNOWHOUSECPU_IMM_KIND_PCREL_S16:
-	temp_reloc_type = R_SNOWHOUSECPU_S16_PCREL;
-	break;
+        temp_reloc_type = R_SNOWHOUSECPU_S16_PCREL;
+        break;
       case SNOWHOUSECPU_IMM_KIND_PCREL_S24:
-	temp_reloc_type = R_SNOWHOUSECPU_S24_PCREL;
-	break;
+        temp_reloc_type = R_SNOWHOUSECPU_S24_PCREL;
+        break;
     }
 
     if (temp_reloc_type != R_SNOWHOUSECPU_NONE) {
       args->irel->r_info
-	= ELF32_R_INFO (ELF32_R_SYM (args->irel->r_info),
-	  //!args->is_pcrel
-	  //? (
-	  //  !args->is_g7_icreload
-	  //  ? (
-	  //    !args->is_small_imm_unsigned
-	  //    ? R_SNOWHOUSECPU_G1_S5
-	  //    : R_SNOWHOUSECPU_G1_U5
-	  //  ) : R_SNOWHOUSECPU_G7_ICRELOAD_S5
-	  //) : R_SNOWHOUSECPU_G3_S9_PCREL);
-	  //snowhousecpu_relax_reloc_lookup
-	  //  (args->is_pcrel, args->is_g5_index, args->is_g7_icreload,
-	  //  args->is_small_imm_unsigned)->small.r_type);
+        = ELF32_R_INFO (ELF32_R_SYM (args->irel->r_info),
+          //!args->is_pcrel
+          //? (
+          //  !args->is_g7_icreload
+          //  ? (
+          //    !args->is_small_imm_unsigned
+          //    ? R_SNOWHOUSECPU_G1_S5
+          //    : R_SNOWHOUSECPU_G1_U5
+          //  ) : R_SNOWHOUSECPU_G7_ICRELOAD_S5
+          //) : R_SNOWHOUSECPU_G3_S9_PCREL);
+          //snowhousecpu_relax_reloc_lookup
+          //  (args->is_pcrel, args->is_g5_index, args->is_g7_icreload,
+          //  args->is_small_imm_unsigned)->small.r_type);
 
-	  //!args->is_pcrel
-	  //? R_SNOWHOUSECPU_S16
-	  //: R_SNOWHOUSECPU_S16_PCREL
-	  temp_reloc_type
-	);
+          //!args->is_pcrel
+          //? R_SNOWHOUSECPU_S16
+          //: R_SNOWHOUSECPU_S16_PCREL
+          temp_reloc_type
+        );
       }
   }
 
@@ -2338,7 +2363,7 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
       {
         /* Go get them off disk. */
         //printf(
-	//  "go get them off disk.\n"
+        //  "go get them off disk.\n"
         //);
         goto error_return;
       }
@@ -2357,7 +2382,7 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
       if (isymbuf == NULL)
       {
         //printf(
-	//  "isymbuf == NULL\n"
+        //  "isymbuf == NULL\n"
         //);
         goto error_return;
       }
@@ -2400,17 +2425,17 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
       //}
       //else
       //{
-	//name = bfd_elf_string_from_elf_section (abfd,
-	//	  symtab_hdr->sh_link,
-	//	  isym->st_name);
-	//printf (
-	//  "internal: Here we have this name: %s\n",
-	//  name
-	//);
-	//if (name == NULL || *name == '\0')
-	//{
-	//  name = bfd_section_name (sec);
-	//}
+        //name = bfd_elf_string_from_elf_section (abfd,
+        //        symtab_hdr->sh_link,
+        //        isym->st_name);
+        //printf (
+        //  "internal: Here we have this name: %s\n",
+        //  name
+        //);
+        //if (name == NULL || *name == '\0')
+        //{
+        //  name = bfd_section_name (sec);
+        //}
       //}
     }
     else
@@ -2426,10 +2451,10 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
       if (h != NULL)
       {
         //name = h->root.root.string;
-	//printf (
-	//  "external: Here we have this name: %s\n",
-	//  name
-	//);
+        //printf (
+        //  "external: Here we have this name: %s\n",
+        //  name
+        //);
       }
 
       if (h->root.type != bfd_link_hash_defined
@@ -2439,8 +2464,8 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
           symbol.  Just ignore it--it will be caught by the
           regular reloc processing.  */
         //printf(
-	//  "This appears to be a reference to an undefined symbol: %u\n",
-	//  h->root.type
+        //  "This appears to be a reference to an undefined symbol: %u\n",
+        //  h->root.type
         //);
         continue;
       }
@@ -2459,8 +2484,8 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
       //else
       //{
       //  name = bfd_elf_string_from_elf_section (abfd,
-      //  	  symtab_hdr->sh_link,
-      //  	  isym->st_name);
+      //          symtab_hdr->sh_link,
+      //          isym->st_name);
       //  printf (
       //    "internal: Here we have this name: %s\n",
       //    name
@@ -2555,9 +2580,9 @@ _snowhousecpu_elf_relax_section (bfd *abfd,
 //#define elf_backend_check_relocs      snowhousecpu_elf_check_relocs
 //
 
-#define elf_backend_collect		true
-#define elf_backend_type_change_ok	true
-#define elf_backend_can_gc_sections	true
+#define elf_backend_collect             true
+#define elf_backend_type_change_ok      true
+#define elf_backend_can_gc_sections     true
 //#define elf_backend_can_gc_sections   true
 #define elf_backend_rela_normal       true
 

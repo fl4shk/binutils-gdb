@@ -142,6 +142,8 @@ snowhousecpu_relax_frag (asection *sec, fragS *fragP, long stretch);
 //    || snowhousecpu_force_relocation (fix))
 //extern int snowhousecpu_force_relocation (fixS *fix);
 
+//#define TC_FORCE_RELOCATION(fix) 1
+
 /* Postpone any-section label subtraction calculation until linking, since
    linker relaxations might change the deltas.  */
 #define TC_FORCE_RELOCATION_SUB_SAME(FIX, SEG) \

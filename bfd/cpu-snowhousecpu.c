@@ -31,7 +31,7 @@ const bfd_arch_info_type bfd_snowhousecpu_arch =
   bfd_mach_snowhousecpu,   /* Machine number. */
   "snowhousecpu",          /* Arch name." */
   "snowhousecpu",          /* Printable name." */
-  1,                  /* Section alignment power. */
+  2,                  /* Section alignment power. */
   true,               /* The one and only. */
   bfd_default_compatible,
   bfd_default_scan,

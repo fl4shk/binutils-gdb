@@ -1126,14 +1126,12 @@ md_apply_fix (fixS *fixP,
   tmp.buf = (bfd_byte *) (fixP->fx_frag->fr_literal + fixP->fx_where);
   //bool relaxable = false;
 
+  tmp.howto = bfd_reloc_type_lookup (stdoutput, fixP->fx_r_type);
   //fprintf (stderr,
-  //  "md_apply_fix (): begin: %lx %lx; %lx; %u %u %u %u\n",
+  //  "md_apply_fix (): begin: %lx %lx; %lx; %s\n",
   //  (long)(*valP), (long)fixP->fx_offset,
   //  *(long *)tmp.buf,
-  //  fixP->fx_r_type == BFD_RELOC_SNOWHOUSECPU_G1_S5,
-  //  fixP->fx_r_type == BFD_RELOC_SNOWHOUSECPU_G1_S17,
-  //  fixP->fx_r_type == BFD_RELOC_SNOWHOUSECPU_G1_S32,
-  //  fixP->fx_r_type == BFD_RELOC_SNOWHOUSECPU_G1_S32_NO_RELAX
+  //  (tmp.howto == NULL) ? "NULL" : tmp.howto->name
   //  );
 
   //if (!fixP->fx_done)
