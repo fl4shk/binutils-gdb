@@ -86,7 +86,7 @@ SECTIONS
   {
     /* 16 MiB of heap */
     ${RELOCATING+ ___heap_start = . ; }
-    ${RELOCATING+ ___heap_end = 0x3fffffc ; }
+    ${RELOCATING+ ___heap_end = 0x0fffffc ; }
   } ${RELOCATING+ > ram}
   .stab 0 ${RELOCATING+(NOLOAD)} :
   {
