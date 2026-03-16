@@ -218,7 +218,8 @@ typedef struct snowhousecpu_cl_insn_t
 
   bfd_reloc_code_real_type reloc;
   bool
-    no_relax: 1;
+    no_relax: 1,
+    uminus_imm: 1;
   //  is_small_imm_unsigned: 1,
   //  is_g7_icreload: 1;
 
@@ -485,6 +486,9 @@ typedef struct snowhousecpu_parse_data_t
   expressionS
     ex,
     ex_1;
+  bool
+    ex_unary_minus,
+    ex_1_unary_minus;
   //snowhousecpu_const_dbl_t
   //  const_dbl;
 } snowhousecpu_parse_data_t;
@@ -669,7 +673,10 @@ append_cl_insn (snowhousecpu_cl_insn_t *cl_insn,
       //&&
       !no_relax
       && !(
-        address_expr->X_op == O_subtract
+	(
+	  address_expr->X_op == O_subtract
+	  || address_expr->X_op == O_uminus
+	)
         && address_expr->X_op_symbol != NULL
       )
     )
@@ -682,10 +689,14 @@ append_cl_insn (snowhousecpu_cl_insn_t *cl_insn,
         worst_case = have_pre_insn_length (SNOWHOUSECPU_HAVE_PRE_PRE);
       //fprintf(
       //  stderr,
-      //  "limitation testificate: %x %x\n",
+      //  "limitation testificate: %x %x; %x %x %x\n",
       //  (unsigned) (cl_insn->data >> 32),
-      //  (unsigned) (cl_insn->data)
+      //  (unsigned) (cl_insn->data),
+      //  (unsigned) (address_expr->X_op == O_uminus),
+      //  (unsigned) (address_expr->X_add_symbol == NULL),
+      //  (unsigned) (address_expr->X_op_symbol == NULL)
       //);
+      cl_insn->uminus_imm = (address_expr->X_op == O_uminus);
 
       dwarf2_emit_insn (0);
       add_gas_relaxed_cl_insn
@@ -1305,7 +1316,10 @@ md_apply_fix (fixS *fixP,
     case BFD_RELOC_SNOWHOUSECPU_S32_FOR_S16:
     case BFD_RELOC_SNOWHOUSECPU_S32_FOR_U16:
     case BFD_RELOC_SNOWHOUSECPU_CFA:
-      if (fixP->fx_addsy && fixP->fx_subsy)
+      if (
+	//fixP->fx_addsy && 
+	fixP->fx_subsy
+      )
       {
         //fprintf(
         //  stderr,
@@ -1345,24 +1359,10 @@ md_apply_fix (fixS *fixP,
           //case BFD_RELOC_SNOWHOUSECPU_G1_S32:
           //case BFD_RELOC_SNOWHOUSECPU_G1_S32_NO_RELAX:
           case BFD_RELOC_SNOWHOUSECPU_S32_FOR_S16:
-            //if (fixP->fx_r_type == BFD_RELOC_SNOWHOUSECPU_G1_S32_NO_RELAX)
-            //{
-            //  fprintf (
-            //    stderr,
-            //    "\ntestificate\n"
-            //  );
-            //}
             fixP->fx_r_type = BFD_RELOC_SNOWHOUSECPU_S32_FOR_S16_ADD32;
             fixP->fx_next->fx_r_type = BFD_RELOC_SNOWHOUSECPU_S32_FOR_S16_SUB32;
             break;
           case BFD_RELOC_SNOWHOUSECPU_S32_FOR_U16:
-            //if (fixP->fx_r_type == BFD_RELOC_SNOWHOUSECPU_G1_S32_NO_RELAX)
-            //{
-            //  fprintf (
-            //    stderr,
-            //    "\ntestificate\n"
-            //  );
-            //}
             fixP->fx_r_type = BFD_RELOC_SNOWHOUSECPU_S32_FOR_U16_ADD32;
             fixP->fx_next->fx_r_type = BFD_RELOC_SNOWHOUSECPU_S32_FOR_U16_SUB32;
             break;
@@ -2570,7 +2570,11 @@ md_convert_frag (bfd *abfd ATTRIBUTE_UNUSED,
   }
   else /* if (fragP->fr_symbol != NULL) */
   {
-    exp.X_op = O_symbol;
+    if (!cl_insn->uminus_imm) {
+      exp.X_op = O_symbol;
+    } else {
+      exp.X_op = O_uminus;
+    }
     exp.X_add_symbol = fragP->fr_symbol;
   }
   exp.X_add_number = fragP->fr_offset;
@@ -3286,7 +3290,7 @@ md_assemble (char *str)
     } \
   } while (0)
 
-#define SNOWHOUSECPU_PARSE_EXP_POST_POUND_WORKER(some_ex) \
+#define SNOWHOUSECPU_PARSE_EXPR_WORKER(some_ex) \
   do \
   { \
     op_end = clear_and_parse_exp_save_ilp (op_end, &pd.some_ex); \
@@ -3297,31 +3301,15 @@ md_assemble (char *str)
       goto post_oa_switch; \
     } \
   } while (0)
-#define SNOWHOUSECPU_PARSE_EXP_POST_POUND() \
+#define SNOWHOUSECPU_PARSE_EXPR() \
   do \
   { \
-    SNOWHOUSECPU_PARSE_EXP_POST_POUND_WORKER (ex); \
+    SNOWHOUSECPU_PARSE_EXPR_WORKER (ex); \
   } while (0)
-
-#define SNOWHOUSECPU_PARSE_EXP_WORKER(some_ex) \
+#define SNOWHOUSECPU_PARSE_EXPR_1() \
   do \
   { \
-    /* if (*op_end != '#') */ \
-    /* { */ \
-    /*  goto post_oa_switch; */\
-    /* } */ \
-    /* ++op_end; */ \
-    SNOWHOUSECPU_PARSE_EXP_POST_POUND_WORKER (some_ex); \
-  } while (0)
-#define SNOWHOUSECPU_PARSE_EXP() \
-  do \
-  { \
-    SNOWHOUSECPU_PARSE_EXP_WORKER (ex); \
-  } while (0)
-#define SNOWHOUSECPU_PARSE_EXP_1() \
-  do \
-  { \
-    SNOWHOUSECPU_PARSE_EXP_WORKER (ex_1); \
+    SNOWHOUSECPU_PARSE_EXPR_WORKER (ex_1); \
   } while (0)
 
   for (size_t i=0; i<opci_vec->size; ++i)
@@ -3412,7 +3400,7 @@ md_assemble (char *str)
         SNOWHOUSECPU_SKIP_ISSPACE ();
         SNOWHOUSECPU_PARSE_GPR (reg_a);
         SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_EXP ();
+        SNOWHOUSECPU_PARSE_EXPR ();
         //fprintf (
         //  stderr,
         //  //"test: %s %s, %s\n",
@@ -3453,7 +3441,7 @@ md_assemble (char *str)
         SNOWHOUSECPU_PARSE_COMMA ();
         SNOWHOUSECPU_PARSE_GPR (reg_b);
         SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_EXP ();
+        SNOWHOUSECPU_PARSE_EXPR ();
         //fprintf (
         //  stderr,
         //  "test: %s %s, %s\n",
@@ -3471,7 +3459,7 @@ md_assemble (char *str)
         SNOWHOUSECPU_PARSE_COMMA ();
         SNOWHOUSECPU_PARSE_GPR (reg_b);
         SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_EXP ();
+        SNOWHOUSECPU_PARSE_EXPR ();
         //pd.have_imm = true;
         pd.parse_good = true;
         break;
@@ -3481,7 +3469,7 @@ md_assemble (char *str)
         SNOWHOUSECPU_PARSE_COMMA ();
         SNOWHOUSECPU_PARSE_GPR (reg_b);
         SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_EXP ();
+        SNOWHOUSECPU_PARSE_EXPR ();
         //pd.have_imm = true;
         pd.parse_good = true;
         break;
@@ -3490,7 +3478,7 @@ md_assemble (char *str)
         SNOWHOUSECPU_SKIP_ISSPACE ();
         SNOWHOUSECPU_PARSE_GPR (reg_a);
         SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_EXP ();
+        SNOWHOUSECPU_PARSE_EXPR ();
         //pd.have_imm = true;
         pd.parse_good = true;
         pd.is_pcrel = true;
@@ -3501,7 +3489,7 @@ md_assemble (char *str)
         SNOWHOUSECPU_PARSE_COMMA ();
         SNOWHOUSECPU_PARSE_GPR (reg_b);
         SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_EXP ();
+        SNOWHOUSECPU_PARSE_EXPR ();
         //pd.have_imm = true;
         pd.parse_good = true;
         pd.is_pcrel = true;
@@ -3512,7 +3500,7 @@ md_assemble (char *str)
         SNOWHOUSECPU_PARSE_COMMA ();
         SNOWHOUSECPU_PARSE_GPR (reg_a);
         SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_EXP ();
+        SNOWHOUSECPU_PARSE_EXPR ();
         //pd.have_imm = true;
         pd.parse_good = true;
         pd.is_pcrel = true;
@@ -3520,7 +3508,7 @@ md_assemble (char *str)
       //case SNOWHOUSECPU_OA_PCREL_S16_IMPLICIT_LR:
       case SNOWHOUSECPU_OA_PCREL_S24_IMPLICIT_LR:
         SNOWHOUSECPU_SKIP_ISSPACE ();
-        SNOWHOUSECPU_PARSE_EXP ();
+        SNOWHOUSECPU_PARSE_EXPR ();
         pd.reg_a = gprs + SNOWHOUSECPU_GPR_ENUM_LR;
         //pd.have_imm = true;
         pd.parse_good = true;
@@ -3532,7 +3520,7 @@ md_assemble (char *str)
         SNOWHOUSECPU_PARSE_COMMA ();
         SNOWHOUSECPU_PARSE_PC ();
         SNOWHOUSECPU_PARSE_COMMA ();
-        SNOWHOUSECPU_PARSE_EXP ();
+        SNOWHOUSECPU_PARSE_EXPR ();
         //pd.have_imm = true;
         pd.parse_good = true;
         pd.is_pcrel = true;
@@ -3585,7 +3573,7 @@ md_assemble (char *str)
         break;
       case SNOWHOUSECPU_OA_PRE_S16:
         SNOWHOUSECPU_SKIP_ISSPACE ();
-        SNOWHOUSECPU_PARSE_EXP ();
+        SNOWHOUSECPU_PARSE_EXPR ();
         //pd.have_imm = true;
         pd.parse_good = true;
         break;
@@ -3765,11 +3753,9 @@ md_assemble (char *str)
   #undef SNOWHOUSECPU_PARSE_SPR
   #undef SNOWHOUSECPU_PARSE_NOENC_REG
   #undef SNOWHOUSECPU_PARSE_PC
-  #undef SNOWHOUSECPU_PARSE_EXP_POST_POUND_WORKER
-  #undef SNOWHOUSECPU_PARSE_EXP_POST_POUND
-  #undef SNOWHOUSECPU_PARSE_EXP_WORKER
-  #undef SNOWHOUSECPU_PARSE_EXP
-  #undef SNOWHOUSECPU_PARSE_EXP_1
+  #undef SNOWHOUSECPU_PARSE_EXPR_WORKER
+  #undef SNOWHOUSECPU_PARSE_EXPR
+  #undef SNOWHOUSECPU_PARSE_EXPR_1
 
   if (!pd.parse_good)
   {
