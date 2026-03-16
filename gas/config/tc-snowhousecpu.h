@@ -150,6 +150,7 @@ snowhousecpu_relax_frag (asection *sec, fragS *fragP, long stretch);
   1
   /* (GENERIC_FORCE_RELOCATION_SUB_SAME (FIX, SEG) */ \
   /* || ((SEG)->flags & SEC_CODE) != 0) */
+#define TC_FORCE_RELOCATION_SUB_ABS(FIX, SEG) 1
 #define TC_FORCE_RELOCATION_SUB_LOCAL(FIX, SEG) 1
 #define TC_VALIDATE_FIX_SUB(FIX, SEG) 1
 #define TC_FORCE_RELOCATION_LOCAL(FIX) 1
