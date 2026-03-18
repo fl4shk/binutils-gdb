@@ -77,14 +77,19 @@ static const snowhousecpu_opc_info_t
   //snowhousecpu_opc_info_bl_simm16 = SNOWHOUSECPU_OI_INST_BL_SIMM16,
   snowhousecpu_opc_info_bne_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BNE_RA_RB_SIMM16,
   snowhousecpu_opc_info_add_ra_pc_simm16 = SNOWHOUSECPU_OI_INST_ADD_RA_PC_SIMM16,
+
   snowhousecpu_opc_info_bltu_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BLTU_RA_RB_SIMM16,
-  snowhousecpu_opc_info_bgtu_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BGTU_RA_RB_SIMM16,
   snowhousecpu_opc_info_bgeu_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BGEU_RA_RB_SIMM16,
+
+  snowhousecpu_opc_info_bgtu_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BGTU_RA_RB_SIMM16,
   snowhousecpu_opc_info_bleu_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BLEU_RA_RB_SIMM16,
+
   snowhousecpu_opc_info_blts_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BLTS_RA_RB_SIMM16,
-  snowhousecpu_opc_info_bgts_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BGTS_RA_RB_SIMM16,
   snowhousecpu_opc_info_bges_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BGES_RA_RB_SIMM16,
+
+  snowhousecpu_opc_info_bgts_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BGTS_RA_RB_SIMM16,
   snowhousecpu_opc_info_bles_ra_rb_simm16 = SNOWHOUSECPU_OI_INST_BLES_RA_RB_SIMM16,
+
   snowhousecpu_opc_info_jl_ra_rb = SNOWHOUSECPU_OI_INST_JL_RA_RB,
   snowhousecpu_opc_info_jmp_rb = SNOWHOUSECPU_OI_INST_JMP_RB,
   snowhousecpu_opc_info_bl_ra_simm24 = SNOWHOUSECPU_OI_INST_BL_RA_SIMM24,
@@ -284,14 +289,19 @@ snowhousecpu_opc_info_branch_etc_arr[] =
   //&snowhousecpu_opc_info_bl_simm16,
   &snowhousecpu_opc_info_bne_ra_rb_simm16,
   &snowhousecpu_opc_info_add_ra_pc_simm16,
+  //--------
   &snowhousecpu_opc_info_bltu_ra_rb_simm16,
-  &snowhousecpu_opc_info_bgtu_ra_rb_simm16,
   &snowhousecpu_opc_info_bgeu_ra_rb_simm16,
+  //--------
+  &snowhousecpu_opc_info_bgtu_ra_rb_simm16,
   &snowhousecpu_opc_info_bleu_ra_rb_simm16,
+  //--------
   &snowhousecpu_opc_info_blts_ra_rb_simm16,
-  &snowhousecpu_opc_info_bgts_ra_rb_simm16,
   &snowhousecpu_opc_info_bges_ra_rb_simm16,
+  //--------
+  &snowhousecpu_opc_info_bgts_ra_rb_simm16,
   &snowhousecpu_opc_info_bles_ra_rb_simm16,
+  //--------
   &snowhousecpu_opc_info_jl_ra_rb,
   &snowhousecpu_opc_info_jmp_rb,
   //NULL,
