@@ -77,16 +77,16 @@ SECTIONS
   } ${RELOCATING+ > ram}
   ${RELOCATING+ PROVIDE(___bss_size = ___bss_end - ___bss_start) ; }
   /* ${RELOCATING+ PROVIDE (_stack = 0x03fffffc)} */
-  .stack ${RELOCATING+ 0x2fffffc /*0x30000*/ }  :
+  .stack ${RELOCATING+ 0x1fffffc /*0x30000*/ }  :
   {
     ${RELOCATING+ _stack = . ; }
     *(.stack)
   } ${RELOCATING+ > ram}
-  .heap ${RELOCATING+ 0x3000000 }  :
+  .heap ${RELOCATING+ 0x2000000 }  :
   {
     /* 16 MiB of heap */
     ${RELOCATING+ ___heap_start = . ; }
-    ${RELOCATING+ ___heap_end = 0x0fffffc ; }
+    ${RELOCATING+ ___heap_end = 0x1fffffc ; }
   } ${RELOCATING+ > ram}
   .stab 0 ${RELOCATING+(NOLOAD)} :
   {
