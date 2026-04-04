@@ -197,6 +197,14 @@ do_snprintf_insn_snowhousecpu_maybe_pre (
   return cbuf[0];
 }
 
+#define do_snprintf_insn_snowhousecpu_main_worker(...) \
+  do { \
+    if (args->show_enc_instr) { \
+      snprintf (temp_buf, temp_buf_lim, "%lx ", args->iword); \
+    } \
+    snprintf (__VA_ARGS__); \
+  } while (0)
+
 static void
 do_snprintf_insn_snowhousecpu_main (
   snowhousecpu_dasm_info_t *args,
@@ -210,14 +218,14 @@ do_snprintf_insn_snowhousecpu_main (
     {
       if (args->length != 4)
       {
-        snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
           "; `SNOWHOUSECPU_OA_RA_RB`; `pre`)");
       }
       else
       {
-	snprintf (temp_buf, temp_buf_lim, "%s",
+	do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s",
 	  args->opc_info->name);
       }
     }
@@ -230,14 +238,14 @@ do_snprintf_insn_snowhousecpu_main (
     {
       if (args->length != 4)
       {
-        snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
           "; `SNOWHOUSECPU_OA_RA_RB`; `pre`)");
       }
       else
       {
-	snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s",
+	do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s",
 	  args->opc_info->name,
 	  gprs[args->ra_idx].name,
 	  gprs[args->rb_idx].name
@@ -249,14 +257,14 @@ do_snprintf_insn_snowhousecpu_main (
     {
       if (args->length != 4)
       {
-        snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
           "; `SNOWHOUSECPU_OA_RA_RB_RC`; `pre`)");
       }
       else
       {
-	snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s, %s",
+	do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s, %s",
 	  args->opc_info->name,
 	  gprs[args->ra_idx].name,
 	  gprs[args->rb_idx].name,
@@ -267,7 +275,7 @@ do_snprintf_insn_snowhousecpu_main (
       break;
     case SNOWHOUSECPU_OA_RA_RB_S16:
     {
-      snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s, %i%s",
+      do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s, %i%s",
 	args->opc_info->name,
 	gprs[args->ra_idx].name,
 	gprs[args->rb_idx].name,
@@ -277,7 +285,7 @@ do_snprintf_insn_snowhousecpu_main (
       break;
     case SNOWHOUSECPU_OA_RA_RB_U16:
     {
-      snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s, %i%s",
+      do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s, %i%s",
 	args->opc_info->name,
 	gprs[args->ra_idx].name,
 	gprs[args->rb_idx].name,
@@ -289,14 +297,14 @@ do_snprintf_insn_snowhousecpu_main (
     {
       if (args->length != 4)
       {
-        snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
           "; `SNOWHOUSECPU_OA_RA_RB_SHIFT_U5`; `pre`)");
       }
       else
       {
-	snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s, %u",
+	do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s, %u",
 	  args->opc_info->name,
 	  gprs[args->ra_idx].name,
 	  gprs[args->rb_idx].name,
@@ -306,7 +314,7 @@ do_snprintf_insn_snowhousecpu_main (
       break;
     //case SNOWHOUSECPU_OA_RA_PCREL_S16:
     //{
-    //  snprintf (temp_buf, temp_buf_lim, "%s\t%s, %i%s",
+    //  do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %i%s",
     //    args->opc_info->name,
     //    gprs[args->ra_idx].name,
     //    (signed) args->simm,
@@ -315,7 +323,7 @@ do_snprintf_insn_snowhousecpu_main (
     //  break;
     case SNOWHOUSECPU_OA_RA_RB_PCREL_S16:
     {
-      snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s, %i%s",
+      do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s, %i%s",
 	args->opc_info->name,
 	gprs[args->ra_idx].name,
 	gprs[args->rb_idx].name,
@@ -325,7 +333,7 @@ do_snprintf_insn_snowhousecpu_main (
       break;
     case SNOWHOUSECPU_OA_RA_PCREL_S24:
     {
-      snprintf (temp_buf, temp_buf_lim, "%s\t%s, %i%s",
+      do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %i%s",
 	args->opc_info->name,
 	gprs[args->ra_idx].name,
 	(signed) args->simm24,
@@ -334,7 +342,7 @@ do_snprintf_insn_snowhousecpu_main (
       break;
     case SNOWHOUSECPU_OA_PCREL_S24_IMPLICIT_LR:
     {
-      snprintf (temp_buf, temp_buf_lim, "%s\t%i%s",
+      do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%i%s",
 	args->opc_info->name,
 	//gprs[args->ra_idx].name,
 	//gprs[args->rb_idx].name,
@@ -344,7 +352,7 @@ do_snprintf_insn_snowhousecpu_main (
       break;
     case SNOWHOUSECPU_OA_RA_PC_PCREL_S16:
     {
-      snprintf (temp_buf, temp_buf_lim, "%s\t%s, %i%s",
+      do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %i%s",
 	args->opc_info->name,
 	gprs[args->ra_idx].name,
 	(signed) args->simm,
@@ -355,14 +363,14 @@ do_snprintf_insn_snowhousecpu_main (
     {
       if (args->length != 4)
       {
-        snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
           "; `SNOWHOUSECPU_OA_IDS_RB`; `pre`)");
       }
       else
       {
-	snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s",
+	do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s",
 	  args->opc_info->name,
 	  sprs[SNOWHOUSECPU_SPR_ENUM_IDS].name,
 	  gprs[args->rb_idx].name);
@@ -373,14 +381,14 @@ do_snprintf_insn_snowhousecpu_main (
     {
       if (args->length != 4)
       {
-        snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
           "; `SNOWHOUSECPU_OA_RA_IRA`; `pre`)");
       }
       else
       {
-	snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s",
+	do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s",
 	  args->opc_info->name,
 	  gprs[args->ra_idx].name,
 	  sprs[SNOWHOUSECPU_SPR_ENUM_IRA].name);
@@ -391,14 +399,14 @@ do_snprintf_insn_snowhousecpu_main (
     {
       if (args->length != 4)
       {
-        snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
           "; `SNOWHOUSECPU_OA_IE_RB`; `pre`)");
       }
       else
       {
-	snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s",
+	do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s",
 	  args->opc_info->name,
 	  sprs[SNOWHOUSECPU_SPR_ENUM_IE].name,
 	  gprs[args->rb_idx].name);
@@ -409,14 +417,14 @@ do_snprintf_insn_snowhousecpu_main (
     {
       if (args->length != 4)
       {
-        snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
           "; `SNOWHOUSECPU_OA_IRA`; `pre`)");
       }
       else
       {
-	snprintf (temp_buf, temp_buf_lim, "%s\t%s",
+	do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s",
 	  args->opc_info->name,
 	  sprs[SNOWHOUSECPU_SPR_ENUM_IRA].name);
       }
@@ -426,14 +434,14 @@ do_snprintf_insn_snowhousecpu_main (
     //{
     //  if (args->length != 4)
     //  {
-    //    snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+    //    do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
     //      "bad (op 0x",
     //      (unsigned) args->op,
     //      "; `SNOWHOUSECPU_OA_LO_RA_RB`; `pre`)");
     //  }
     //  else
     //  {
-    //    snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s, %s",
+    //    do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s, %s",
     //      args->opc_info->name,
     //      sprs[SNOWHOUSECPU_SPR_ENUM_LO].name,
     //      gprs[args->ra_idx].name,
@@ -445,14 +453,14 @@ do_snprintf_insn_snowhousecpu_main (
     //{
     //  if (args->length != 4)
     //  {
-    //    snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+    //    do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
     //      "bad (op 0x",
     //      (unsigned) args->op,
     //      "; `SNOWHOUSECPU_OA_LO_RA_RB_RC`; `pre`)");
     //  }
     //  else
     //  {
-    //    snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s, %s, %s",
+    //    do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s, %s, %s",
     //      args->opc_info->name,
     //      sprs[SNOWHOUSECPU_SPR_ENUM_LO].name,
     //      gprs[args->ra_idx].name,
@@ -465,14 +473,14 @@ do_snprintf_insn_snowhousecpu_main (
     {
       if (args->length != 4)
       {
-        snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
           "; `SNOWHOUSECPU_OA_RA_HI`; `pre`)");
       }
       else
       {
-        snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s",
           args->opc_info->name,
           gprs[args->ra_idx].name,
           sprs[SNOWHOUSECPU_SPR_ENUM_HI].name);
@@ -483,14 +491,14 @@ do_snprintf_insn_snowhousecpu_main (
     {
       if (args->length != 4)
       {
-        snprintf (temp_buf, temp_buf_lim, "%s%x%s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s",
           "bad (op 0x",
           (unsigned) args->op,
           "; `SNOWHOUSECPU_OA_HI_RB`; `pre`)");
       }
       else
       {
-        snprintf (temp_buf, temp_buf_lim, "%s\t%s, %s",
+        do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s\t%s, %s",
           args->opc_info->name,
           sprs[SNOWHOUSECPU_SPR_ENUM_HI].name,
 	  gprs[args->rb_idx].name);
@@ -498,18 +506,31 @@ do_snprintf_insn_snowhousecpu_main (
     }
       break;
     default:
-      //snprintf (temp_buf, temp_buf_lim, "bad (grp 0x%x; oparg 0x%x; opcode 0x%x; name %s)",
-      //  (unsigned) args->grp, (unsigned) args->opc_info->oparg,
-      //  (unsigned) args->opc_info->opcode,
-      //  args->opc_info->names[args->fw]);
+      //if (
+      //  args->show_enc_instr
+      //  && args->opc_info->oparg == SNOWHOUSECPU_OA_PRE_S16
+      //)
+      //{
+      //  do_snprintf_insn_snowhousecpu_main_worker (
+      //    temp_buf, temp_buf_lim,
+      //    "pre #%lx",
+      //  );
+      //}
+      //else
+      {
+	//do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "bad (grp 0x%x; oparg 0x%x; opcode 0x%x; name %s)",
+	//  (unsigned) args->grp, (unsigned) args->opc_info->oparg,
+	//  (unsigned) args->opc_info->opcode,
+	//  args->opc_info->names[args->fw]);
 
-      snprintf (temp_buf, temp_buf_lim, "%s%x%s%s%s",
-	"bad (op 0x",
-	(unsigned) args->op,
-	"; ",
-	args->opc_info->name,
-	")"
-      );
+	do_snprintf_insn_snowhousecpu_main_worker (temp_buf, temp_buf_lim, "%s%x%s%s%s",
+	  "bad (op 0x",
+	  (unsigned) args->op,
+	  "; ",
+	  args->opc_info->name,
+	  ")"
+	);
+      }
       break;
     /* -------- */
   }
@@ -546,7 +567,7 @@ snprint_one_insn_snowhousecpu (
 )
 {
   snowhousecpu_dasm_info_t dasm_info;
-  snowhousecpu_dasm_info_ctor (&dasm_info, rd32_func);
+  snowhousecpu_dasm_info_ctor (&dasm_info, rd32_func, true);
   snowhousecpu_dasm_info_do_disassemble (&dasm_info);
 
   if (dasm_info.status)
@@ -588,7 +609,7 @@ print_insn_snowhousecpu (bfd_vma addr, struct disassemble_info *info)
   loc_info = info;
 
   snowhousecpu_dasm_info_t dasm_info;
-  snowhousecpu_dasm_info_ctor (&dasm_info, &print_insn_snowhousecpu_rd32);
+  snowhousecpu_dasm_info_ctor (&dasm_info, &print_insn_snowhousecpu_rd32, false);
   snowhousecpu_dasm_info_do_disassemble (&dasm_info);
 
   if (dasm_info.status)

@@ -26,16 +26,21 @@
 
 //#ifdef SNOWHOUSECPU_CLANGD
 #include <stdio.h>
+#include <stdbool.h>
 #include "snowhousecpu.h"
 #include "snowhousecpu-opc-decls.h"
 //#endif
 
 static inline void
-snowhousecpu_dasm_info_ctor (snowhousecpu_dasm_info_t *self,
-  snowhousecpu_dasm_info_rd32_func rd32_func)
+snowhousecpu_dasm_info_ctor (
+  snowhousecpu_dasm_info_t *self,
+  snowhousecpu_dasm_info_rd32_func rd32_func,
+  bool show_enc_instr
+)
 {
   memset (self, 0, sizeof (*self));
   self->rd32_func = rd32_func;
+  self->show_enc_instr = show_enc_instr;
 }
 
 static void

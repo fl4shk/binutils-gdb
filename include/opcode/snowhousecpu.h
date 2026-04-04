@@ -24,6 +24,7 @@
 
 #include "bfd.h"
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
@@ -664,6 +665,7 @@ typedef struct snowhousecpu_dasm_info_t
   int status;
   bool is_bad: 1;
   bool have_non_pre_imm: 1;
+  bool show_enc_instr: 1;
   //bool grp_decode_err: 1;
   //bool g7_subgrp_decode_err: 1;
   //have_index_have_ra_ind: 1; // true for `rA`, false for `rB`
