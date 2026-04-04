@@ -653,7 +653,10 @@ static inline bool snowhousecpu_imm_kind_is_non_pre_imm(
 
 struct snowhousecpu_dasm_info_t;
 typedef int (*snowhousecpu_dasm_info_rd32_func)
-  (struct snowhousecpu_dasm_info_t * /* self */);
+  (
+    //struct snowhousecpu_dasm_info_t * /* self */
+    uint8_t *buf, size_t offset
+  );
 
 typedef struct snowhousecpu_dasm_info_t
 {
