@@ -563,9 +563,28 @@ print_insn_snowhousecpu_rd32 (
 extern int
 snprint_one_insn_snowhousecpu (
   char *str_buf, size_t str_buf_size,
-  snowhousecpu_dasm_info_rd32_func rd32_func
+  snowhousecpu_dasm_info_rd32_func rd32_func,
+  uint32_t *just_check_for_pre
 )
 {
+  if (just_check_for_pre != NULL) {
+    uint8_t buf[4];
+
+    if (rd32_func (buf, 0)) {
+      return -1;
+    }
+
+    const bfd_vma iword = bfd_getl32 (buf);
+    *just_check_for_pre = (uint32_t)snowhousecpu_sign_extend (
+      snowhousecpu_get_insn_field (
+	SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, iword
+      ),
+      SNOWHOUSECPU_IMM16_BITSIZE
+    );
+
+    return 4;
+  }
+
   snowhousecpu_dasm_info_t dasm_info;
   snowhousecpu_dasm_info_ctor (&dasm_info, rd32_func, true);
   snowhousecpu_dasm_info_do_disassemble (&dasm_info);
