@@ -575,14 +575,23 @@ snprint_one_insn_snowhousecpu (
     }
 
     const bfd_vma iword = bfd_getl32 (buf);
-    *just_check_for_pre = (uint32_t)snowhousecpu_sign_extend (
-      snowhousecpu_get_insn_field (
-	SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, iword
-      ),
-      SNOWHOUSECPU_IMM16_BITSIZE
-    );
+    if (
+      snowhousecpu_get_insn_field (SNOWHOUSECPU_OP_MASK, SNOWHOUSECPU_OP_BITPOS, iword)
+      == snowhousecpu_opc_info_pre_simm16.op
+    ) {
+      *just_check_for_pre = (uint32_t)snowhousecpu_sign_extend (
+	snowhousecpu_get_insn_field (
+	  SNOWHOUSECPU_IMM16_MASK, SNOWHOUSECPU_IMM16_BITPOS, iword
+	),
+	SNOWHOUSECPU_IMM16_BITSIZE
+      );
+      return 4; // indicates "there was a pre instruction"
+    }
+    else
+    {
+      return 0; // indicates "no pre instruction"
+    }
 
-    return 4;
   }
 
   snowhousecpu_dasm_info_t dasm_info;
