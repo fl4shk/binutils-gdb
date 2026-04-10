@@ -251,9 +251,11 @@ snowhousecpu_dasm_info_do_disassemble (snowhousecpu_dasm_info_t *self);
 
 extern int
 snprint_one_insn_snowhousecpu (
+  uint32_t *pc,
   char *str_buf, size_t str_buf_size,
   snowhousecpu_dasm_info_rd32_func rd32_func,
-  uint32_t *just_check_for_pre
+  uint32_t *just_check_for_pre,
+  bool show_enc_instr
 );
 
 #endif    // _SNOWHOUSECPU_DASM_INFO_FUNCS_H_

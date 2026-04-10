@@ -675,6 +675,7 @@ typedef struct snowhousecpu_dasm_info_t
   const snowhousecpu_opc_info_t *opc_info;
   const snowhousecpu_opc_info_t *inp_opc_info;
   //const snowhousecpu_opc_info_t *opc_main;
+  snowhousecpu_temp_t curr_pc;
   snowhousecpu_temp_t iword;
   snowhousecpu_temp_t uimm;
   snowhousecpu_temp_t simm;
