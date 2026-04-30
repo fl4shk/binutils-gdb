@@ -1,4 +1,4 @@
-/* BFD support for the snowhousecpu microprocessor.
+/* Opcodes support for the snowhousecpu microprocessor.
    Copyright (C) 2023 Free Software Foundation, Inc.
    Contributed by Andrew Clark (FL4SHK)
 
@@ -22,7 +22,9 @@
 #ifndef _SNOWHOUSECPU_H_
 #define _SNOWHOUSECPU_H_
 
+#ifndef SNOWHOUSECPU_DONT_INCLUDE_BFD_HEADER
 #include "bfd.h"
+#endif	  // SNOWHOUSECPU_DONT_INCLUDE_BFD_HEADER
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -34,9 +36,11 @@
 
 #define SNOWHOUSECPU_ARRAY_SIZE(x) (sizeof (x) / sizeof (x[0]))
 
+#ifndef SNOWHOUSECPU_DONT_INCLUDE_BFD_HEADER
 /* In case we're on a 32-bit machine, construct a 64-bit "-1" value
   from smaller values. Start with zero, widen, *then* decrement.  */
 #define MINUS_ONE       (((bfd_vma) 0) - 1)
+#endif	  // SNOWHOUSECPU_DONT_INCLUDE_BFD_HEADER
 
 /* Macros for getting and setting an instruction field.  */
 #define GET_INSN_FIELD_WORKER(mask, bitpos, i) \
@@ -694,7 +698,12 @@ typedef struct snowhousecpu_dasm_info_t
   //g7_sprldst_subgrp,
   //g7_icreload_subgrp,
   //g7_icflush_subgrp;
+  #ifndef SNOWHOUSECPU_DONT_INCLUDE_BFD_HEADER
   bfd_byte buffer[4];
+  #else	  // if defined(SNOWHOUSECPU_DONT_INCLUDE_BFD_HEADER)
+  uint8_t buffer[4];
+  #endif    // SNOWHOUSECPU_DONT_INCLUDE_BFD_HEADER
+
   snowhousecpu_dasm_info_rd32_func rd32_func;
 } snowhousecpu_dasm_info_t;
 
