@@ -47,6 +47,19 @@ const snowhousecpu_reg_t gprs[SNOWHOUSECPU_NUM_GPRS] = SNOWHOUSECPU_INST_GPRS ()
 /* Special purpose register names */
 const snowhousecpu_reg_t sprs[SNOWHOUSECPU_NUM_SPRS] = SNOWHOUSECPU_INST_SPRS ();
 
+
+extern void
+snowhousecpu_dasm_info_ctor (
+  snowhousecpu_dasm_info_t *self,
+  snowhousecpu_dasm_info_rd32_func rd32_func,
+  bool show_enc_instr
+)
+{
+  memset (self, 0, sizeof (*self));
+  self->rd32_func = rd32_func;
+  self->show_enc_instr = show_enc_instr;
+}
+
 const snowhousecpu_reg_t reg_pc = SNOWHOUSECPU_INST_REG_PC ();
 extern void
 snowhousecpu_dasm_info_do_disassemble (snowhousecpu_dasm_info_t *self)
