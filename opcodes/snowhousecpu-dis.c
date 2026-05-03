@@ -226,7 +226,7 @@ do_snprintf_insn_snowhousecpu_maybe_pre (
     } \
   } while (0)
 
-static void
+extern void
 do_snprintf_insn_snowhousecpu_main (
   snowhousecpu_dasm_info_t *args,
   char *temp_buf, size_t temp_buf_lim
